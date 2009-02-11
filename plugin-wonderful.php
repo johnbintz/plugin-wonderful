@@ -66,9 +66,11 @@ class PluginWonderful {
 
   function set_up_widgets() {
     if ($this->publisher_info !== false) {
-      foreach ($this->publisher_info->get_sidebar_widget_info() as $widget_info) {
-        extract($widget_info);
-        wp_register_sidebar_widget($id, $name, array($this, 'render_widget'), "", $options['adboxid']);
+      if (($widgets = $this->publisher_info->get_sidebar_widget_info()) !== false) {
+        foreach ($widgets as $widget_info) {
+          extract($widget_info);
+          wp_register_sidebar_widget($id, $name, array($this, 'render_widget'), "", $options['adboxid']);
+        }
       }
     }
   }
@@ -119,22 +121,52 @@ class PluginWonderful {
     if (method_exists($this, $action)) { call_user_func(array($this, $action)); }
   }
 
+  function handle_action_rebuild_database() {
+    $this->adboxes_client->destroy();
+    $this->adboxes_client->initialize();
+
+    $this->messages[] = __("Adbox database destroyed and rebuilt.", 'plugin-wonderful');
+
+    if (get_option('plugin-wonderful-memberid') != "") {
+      if (($result = file_get_contents(sprintf(PLUGIN_WONDERFUL_XML_URL, (int)get_option('plugin-wonderful-memberid')))) !== false) {
+        $this->publisher_info = new PublisherInfo();
+        if ($this->publisher_info->parse($result)) {
+          $this->adboxes_client->post_ads($this->publisher_info);
+          $this->messages[] = sprintf(__('Adbox information redownloaded.', 'plugin-wonderful'), (int)$_POST['memberid']);
+        } else {
+          $this->messages[] = __("Unable to parse publisher data from Project Wonderful.", 'plugin-wonderful');
+          $this->publisher_info = false;
+        }
+      } else {
+        $this->messages[] = __("Unable to read publisher data from Project Wonderful.", 'plugin-wonderful');
+        $this->publisher_info = false;
+      }
+    }
+  }
+
   function handle_action_change_memberid() {
     if (trim($_POST['memberid'])) {
       if (trim($_POST['memberid']) === (string)(int)$_POST['memberid']) {
         if (($result = file_get_contents(sprintf(PLUGIN_WONDERFUL_XML_URL, (int)$_POST['memberid']))) !== false) {
-          update_option('plugin-wonderful-memberid', (int)$_POST['memberid']);
-
           $this->publisher_info = new PublisherInfo();
-          $this->publisher_info->parse($result);
-
-          $this->adboxes_client->post_ads($publisher_info);
-          $this->messages[] = sprintf(__('Member ID changed to %s and adbox information redownloaded.', 'plugin-wonderful'), (int)$_POST['memberid']);
+          if ($this->publisher_info->parse($result)) {
+            update_option('plugin-wonderful-memberid', (int)$_POST['memberid']);
+            $this->adboxes_client->post_ads($this->publisher_info);
+            $this->messages[] = sprintf(__('Member number changed to %s and adbox information redownloaded.', 'plugin-wonderful'), (int)$_POST['memberid']);
+          } else {
+            $this->messages[] = __("Unable to parse publisher data from Project Wonderful.", 'plugin-wonderful');
+            update_option('plugin-wonderful-memberid', "");
+            $this->publisher_info = false;
+          }
         } else {
           $this->messages[] = __("Unable to read publisher data from Project Wonderful.", 'plugin-wonderful');
+          update_option('plugin-wonderful-memberid', "");
+          $this->publisher_info = false;
         }
       } else {
-        $this->messages[] = __("Member IDs need to be numeric.", 'plugin-wonderful');
+        $this->messages[] = __("Member numbers need to be numeric.", 'plugin-wonderful');
+        update_option('plugin-wonderful-memberid', "");
+        $this->publisher_info = false;
       }
     } else {
       $this->messages[] = __("Existing adbox information removed.", 'plugin-wonderful');

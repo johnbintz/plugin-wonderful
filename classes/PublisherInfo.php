@@ -23,7 +23,9 @@ class PublisherInfo {
     $this->current_type = $type;
 
     $this->is_valid = true;
-    if (($result = xml_parse($this->parser, $string, true)) != 1) { $this->is_valid = false; }
+    if (($result = xml_parse($this->parser, $string, true)) != 1) {
+      $this->is_valid = false;
+    }
     xml_parser_free($this->parser);
 
     if ($this->is_valid) {
@@ -55,18 +57,21 @@ class PublisherInfo {
         break;
       case "PW:ADBOX":
         $new_attributes = array();
-        foreach (array('ADBOXID', 'SITENAME', 'URL', 'DIMENSIONS', 'RATING', 'CATEGORY') as $field) {
+        $translated_attributes = array('TYPE' => 'adtype');
+        foreach (array('ADBOXID', 'SITENAME', 'TYPE', 'URL', 'DIMENSIONS', 'RATING', 'CATEGORY') as $field) {
           if (!isset($attributes[$field])) {
             $this->is_valid = false; break;
           } else {
-            $new_attributes[strtolower($field)] = $attributes[$field];
+            $target_field = strtolower($field);
+            if (isset($translated_attributes[$field])) { $target_field = $translated_attributes[$field]; }
+            $new_attributes[$target_field] = $attributes[$field];
           }
         }
         if ($this->is_valid) {
           if (!is_numeric($attributes['ADBOXID'])) { $this->is_valid = false; break; }
           if (preg_match('#^[0-9]+x[0-9]+$#', $attributes['DIMENSIONS']) == 0) { $this->is_valid = false; break; }
           if (($result = parse_url($attributes['URL'])) === false) { $this->is_valid = false; break; }
-          foreach (array('scheme', 'host', 'path') as $part) {
+          foreach (array('scheme', 'host') as $part) {
             if (!isset($result[$part])) { $this->is_valid = false; break; }
           }
 
@@ -113,7 +118,7 @@ class PublisherInfo {
       foreach ($this->adboxes as $adbox) {
         $widgets[] = array(
           "id" => "project_wonderful_{$this->memberid}_{$adbox->adboxid}",
-          "name" => sprintf(__('PW %1$s %2$s (%3$s)', 'comicpress-manager'), $adbox->dimensions, $adbox->sitename, $adbox->adboxid),
+          "name" => sprintf(__('PW %1$s %2$s %3$s (%4$s)', 'comicpress-manager'), $adbox->adtype, $adbox->dimensions, $adbox->sitename, $adbox->adboxid),
           "options" => array("adboxid" => $adbox->adboxid)
         );
       }

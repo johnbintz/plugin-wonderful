@@ -11,6 +11,7 @@ class TestPublisherInfo extends PHPUnit_Framework_TestCase {
     $this->default_data = array(
       array("3", 'adboxid'),
       array("a", 'sitename'),
+      array("a", 'adtype'),
       array("http://meow.raow/", 'url'),
       array("1x1", 'dimensions'),
       array("a", 'rating'),
@@ -47,7 +48,7 @@ class TestPublisherInfo extends PHPUnit_Framework_TestCase {
   public static function goodDataProvider() {
     return array(
       array('<pw:member memberid="1"><pw:adboxes></pw:adboxes></pw:member>'),
-      array('<pw:member memberid="1"><pw:adboxes><pw:adbox adboxid="5" sitename="a" url="http://meow.raow/" dimensions="1x1" rating="a" category="a"><pw:description>a</pw:description><pw:tags>a</pw:tags><pw:standardcode>a</pw:standardcode><pw:advancedcode>a</pw:advancedcode></pw:adbox></pw:adboxes></pw:member>')
+      array('<pw:member memberid="1"><pw:adboxes><pw:adbox adboxid="5" type="a" sitename="a" url="http://meow.raow/" dimensions="1x1" rating="a" category="a"><pw:description>a</pw:description><pw:tags>a</pw:tags><pw:standardcode>a</pw:standardcode><pw:advancedcode>a</pw:advancedcode></pw:adbox></pw:adboxes></pw:member>')
     );
   }
 
@@ -59,7 +60,7 @@ class TestPublisherInfo extends PHPUnit_Framework_TestCase {
   }
 
   public function testPWAPI() {
-    $this->parser->parse('<pw:member memberid="1"><pw:adboxes><pw:adbox adboxid="3" sitename="a" url="http://meow.raow/" dimensions="1x1" rating="a" category="a"><pw:description>a</pw:description><pw:tags>a</pw:tags><pw:standardcode>a</pw:standardcode><pw:advancedcode>a</pw:advancedcode></pw:adbox></pw:adboxes></pw:member>');
+    $this->parser->parse('<pw:member memberid="1"><pw:adboxes><pw:adbox type="a" adboxid="3" sitename="a" url="http://meow.raow/" dimensions="1x1" rating="a" category="a"><pw:description>a</pw:description><pw:tags>a</pw:tags><pw:standardcode>a</pw:standardcode><pw:advancedcode>a</pw:advancedcode></pw:adbox></pw:adboxes></pw:member>');
 
     $this->assertEquals(1, $this->parser->memberid);
     $this->assertEquals(1, count($this->parser->adboxes));
@@ -86,7 +87,7 @@ class TestPublisherInfo extends PHPUnit_Framework_TestCase {
     $sidebar_info = array(
       array(
         "id" => "project_wonderful_1_{$default_data_as_hash['adboxid']}",
-        "name" => "PW {$default_data_as_hash['dimensions']} {$default_data_as_hash['sitename']} ({$default_data_as_hash['adboxid']})",
+        "name" => "PW {$default_data_as_hash['sitename']} {$default_data_as_hash['dimensions']} {$default_data_as_hash['adtype']} ({$default_data_as_hash['adboxid']})",
         "options" => array("adboxid" => $default_data_as_hash['adboxid'])
       )
     );

@@ -26,6 +26,7 @@ class PWAdboxesClient {
                  type int(1) NOT NULL,
                  adboxid int(11) NOT NULL,
                  sitename char(100) NOT NULL,
+                 adtype char(30) NOT NULL,
                  url char(255) NOT NULL,
                  dimensions char(10) NOT NULL,
                  rating char(10) NOT NULL,

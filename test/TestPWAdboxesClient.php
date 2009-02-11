@@ -13,7 +13,7 @@ class TestPWAdboxesClient extends PHPUnit_Framework_TestCase {
     $this->sample_ad = (object)array('adboxid' => 1, 'sitename' => "a", 'url' => "http://meow.raow/",
                                      'dimensions' => "1x1", 'rating' => "a", 'category' => "a",
                                      'description' => "a", 'tags' => 'a', 'standardcode' => 'a',
-                                     'advancedcode' => 'a');
+                                     'advancedcode' => 'a', 'adtype' => 'a');
   }
 
   function testCreateTables() {
@@ -49,7 +49,7 @@ class TestPWAdboxesClient extends PHPUnit_Framework_TestCase {
 
     $ads->adboxes = array($this->sample_ad);
 
-    $wpdb->expects($this->exactly(10))->method('escape');
+    $wpdb->expects($this->exactly(11))->method('escape');
     $wpdb->expects($this->exactly(2))->method('query')->will($this->returnCallback(array($this, 'postAdsCallback')));
 
     $this->database_client->post_ads($ads, PW_ADBOXES_PROJECT_WONDERFUL);
