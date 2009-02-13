@@ -123,9 +123,11 @@ class PluginWonderful {
 
         include($target);
 
-        echo '<div style="margin-top: 20px; border-top: solid #E3E3E3 1px">';
+        echo '<div style="margin-top: 20px; border-top: solid #E3E3E3 1px; overflow: hidden">';
+          echo '<form style="float: right; display: inline" action="https://www.paypal.com/cgi-bin/webscr" method="post"><input type="hidden" name="cmd" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="3215507"><input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt=""><img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1"></form>';
           echo 'Plugin Wonderful Version 0.2 by <a href="http://www.coswellproductions.com/wordpress/">John Bintz</a> | ';
           echo '<a href="http://www.projectwonderful.com/login.php">Manage your Project Wonderful publisher account</a>';
+          echo '<br style="clear: both" />';
         echo '</div>';
       echo '</div>';
     } else {

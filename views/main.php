@@ -23,7 +23,7 @@
     <tr>
       <td>&nbsp;</td>
       <td>
-        <input type="submit" value="<?php _e('Change', 'plugin-wonderful') ?>" class="button" />
+        <input type="submit" value="<?php _e('Change and Redownload Adbox Information', 'plugin-wonderful') ?>" class="button" /> <em>(<?php _e('if you\'ve modified adbox settings on Project Wonderful, just click this button to refresh your adbox code.', 'plugin-wonderful') ?>)</em>
       </td>
     </tr>
   </table>
@@ -40,7 +40,7 @@
         <th class="manage-column" align="center"><?php _e('Category', 'plugin-wonderful') ?></th>
         <th class="manage-column" align="center"><?php _e('Template Tag Identifier', 'plugin-wonderful') ?></th>
         <th class="manage-column" align="center"><?php _e('Use in RSS Feed?', 'plugin-wonderful') ?></th>
-        <th style="text-align: right !important" width="25%" class="manage-column"><?php _e('Raw Template Tag <em>(for direct use in theme)</em>', 'plugin-wonderful') ?></th>
+        <th style="text-align: right !important" width="30%" class="manage-column"><?php _e('Raw Template Tag <em>(for direct use in theme)</em>', 'plugin-wonderful') ?></th>
       </tr>
       <?php
         $first_adboxid = null;
