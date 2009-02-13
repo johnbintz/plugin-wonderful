@@ -65,7 +65,7 @@
             </td>
             <td><?php echo $adbox->adtype ?> - <?php echo $adbox->dimensions ?></td>
             <td><?php echo $adbox->category ?></td>
-            <td><input type="text" size="8" name="template_tag_id[<?php echo $adbox->adboxid ?>]" value="<?= $adbox->template_tag_id ?>" /></td>
+            <td><input type="text" size="8" name="template_tag_id[<?php echo $adbox->adboxid ?>]" value="<?php echo $adbox->template_tag_id ?>" /></td>
             <td align="center"><input type="checkbox" name="in_rss_feed[<?php echo $adbox->adboxid ?>]" value="yes" <?php echo !empty($adbox->in_rss_feed) ? " checked" : "" ?> /></td>
             <td align="right">
               <tt>the_project_wonderful_ad(<?php

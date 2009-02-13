@@ -64,7 +64,7 @@ class TestPWAdboxesClient extends PHPUnit_Framework_TestCase {
 
     $wpdb->expects($this->once())
          ->method('get_results')
-         ->with($this->equalTo("SELECT * FROM {$this->database_client->table_name}"))
+         ->with($this->equalTo("SELECT * FROM {$this->database_client->table_name} ORDER BY adboxid ASC"))
          ->will($this->returnValue(array($this->sample_ad)));
 
     $result = $this->database_client->get_ads("1");
@@ -92,7 +92,7 @@ class TestPWAdboxesClient extends PHPUnit_Framework_TestCase {
 
     $wpdb->expects($this->once())
          ->method('get_results')
-         ->with($this->equalTo("SELECT * FROM {$this->database_client->table_name} WHERE type = {$type}"))
+         ->with($this->equalTo("SELECT * FROM {$this->database_client->table_name} WHERE type = {$type} ORDER BY adboxid ASC"))
          ->will($this->returnValue(array()));
 
     $result = $this->database_client->get_ads("1", $type);
@@ -106,7 +106,7 @@ class TestPWAdboxesClient extends PHPUnit_Framework_TestCase {
 
     $wpdb->expects($this->once())
          ->method('get_results')
-         ->with($this->equalTo("SELECT * FROM {$this->database_client->table_name}"))
+         ->with($this->equalTo("SELECT * FROM {$this->database_client->table_name} ORDER BY adboxid ASC"))
          ->will($this->returnValue(array()));
 
     $result = $this->database_client->get_ads("1");
