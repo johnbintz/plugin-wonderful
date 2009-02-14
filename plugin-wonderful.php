@@ -1,9 +1,9 @@
 <?php
 /*
 Plugin Name: Plugin Wonderful
-Plugin URI: http://www.coswellproductions.com
+Plugin URI: http://www.coswellproductions.com/wordpress/wordpress-plugins/
 Description: Easily embed a Project Wonderful publisher's advertisements.
-Version: 0.2
+Version: 0.3
 Author: John Bintz
 Author URI: http://www.coswellproductions.org/wordpress/
 
@@ -28,6 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 require_once('classes/PWAdboxesClient.php');
 
 define('PLUGIN_WONDERFUL_XML_URL', 'http://www.projectwonderful.com/xmlpublisherdata.php?publisher=%d');
+define('PLUGIN_WONDERFUL_UPDATE_TIME', 60 * 60 * 12); // every 12 hours
 
 class PluginWonderful {
   var $messages, $adboxes_client, $publisher_info, $member_id;
@@ -39,6 +40,16 @@ class PluginWonderful {
 
     if ($member_id = get_option('plugin-wonderful-memberid')) {
       $this->publisher_info = $this->adboxes_client->get_ads($member_id);
+
+      if ((get_option('plugin-wonderful-last-update') + PLUGIN_WONDERFUL_UPDATE_TIME) < time()) {
+        if (($result = file_get_contents(sprintf(PLUGIN_WONDERFUL_XML_URL, (int)get_option('plugin-wonderful-memberid')))) !== false) {
+          $this->publisher_info = new PublisherInfo();
+          if ($this->publisher_info->parse($result)) {
+            $this->adboxes_client->post_ads($this->publisher_info);
+            update_option('plugin-wonderful-last-update', time());
+          }
+        }
+      }
     }
 
     $result = get_option('plugin-wonderful-database-version');
@@ -60,6 +71,11 @@ class PluginWonderful {
         }
       }
     }
+  }
+
+  function insert_activation_ad() {
+    $result = get_option('plugin-wonderful-activate-ad-code');
+    if (!empty($result)) { echo $result; }
   }
 
   function render_widget($options, $adboxid) {
@@ -115,6 +131,9 @@ class PluginWonderful {
   function get_view($function_name) {
     $target = $this->_create_target(str_replace('plugin_wonderful_', '', $function_name), "views");
     if (file_exists($target)) {
+
+      $info = get_plugin_data(realpath(__FILE__));
+
       echo '<div class="wrap">';
         echo '<div id="icon-edit" class="icon32"><br /></div>';
         echo '<h2>' . __("Plugin Wonderful", 'plugin-wonderful') . '</h2>';
@@ -125,19 +144,41 @@ class PluginWonderful {
 
         echo '<div style="margin-top: 20px; border-top: solid #E3E3E3 1px; overflow: hidden">';
           echo '<form style="float: right; display: inline" action="https://www.paypal.com/cgi-bin/webscr" method="post"><input type="hidden" name="cmd" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="3215507"><input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt=""><img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1"></form>';
-          echo 'Plugin Wonderful Version 0.2 by <a href="http://www.coswellproductions.com/wordpress/">John Bintz</a> | ';
-          echo '<a href="http://www.projectwonderful.com/login.php">Manage your Project Wonderful publisher account</a>';
+          echo sprintf(__('%1$s Version %2$s by %3$s', 'plugin-wonderful'), $info['Title'], $info['Version'], $info['Author']) . ' | ';
+          echo __('<a href="http://www.projectwonderful.com/login.php">Manage your Project Wonderful publisher account</a>', 'plugin-wonderful');
           echo '<br style="clear: both" />';
         echo '</div>';
       echo '</div>';
     } else {
-      die("View not found: " . str_replace('plugin-wonderful_', '', $function_name));
+      die(__("View not found: ", 'plugin-wonderful') . str_replace('plugin-wonderful_', '', $function_name));
     }
   }
 
   function handle_action() {
     $action = "handle_action_" . str_replace("-", "_", preg_replace('#[^a-z\-]#', '', strtolower($_POST['action'])));
     if (method_exists($this, $action)) { call_user_func(array($this, $action)); }
+  }
+
+  function handle_action_activate_ad() {
+    if (isset($_POST['submit'])) {
+      $original_ad_code = get_option('plugin-wonderful-activate-ad-code');
+      update_option('plugin-wonderful-activate-ad-code', $_POST['activate-ad-code']);
+
+      if (empty($_POST['activate-ad-code'])) {
+        $this->messages[] = __('Adbox for activation removed.', 'plugin-wonderful');
+      } else {
+        $this->messages[] = __('Adbox for activation changed. Return to Project Wonderful to finish activating your ad, then return here and click the Finished button.', 'plugin-wonderful');
+      }
+    }
+
+    if (isset($_POST['finished'])) {
+      update_option('plugin-wonderful-activate-ad-code', "");
+      $this->messages[] = __('Adbox for activation removed and all adboxes redownloaded.', 'plugin-wonderful');
+
+      if ($member_id = get_option('plugin-wonderful-memberid')) {
+        $this->publisher_info = $this->adboxes_client->get_ads($member_id);
+      }
+    }
   }
 
   function handle_action_change_adbox_settings() {
@@ -252,6 +293,7 @@ $plugin_wonderful = new PluginWonderful();
 add_action('admin_menu', array($plugin_wonderful, 'set_up_menu'));
 add_action('init', array($plugin_wonderful, 'set_up_widgets'));
 add_filter('the_excerpt_rss', array($plugin_wonderful, 'insert_rss_feed_ads'));
+add_filter('wp_footer', array($plugin_wonderful, 'insert_activation_ad'));
 
 register_activation_hook(__FILE__, array($plugin_wonderful, 'handle_activation'));
 

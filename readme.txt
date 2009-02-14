@@ -3,14 +3,18 @@ Contributors: johncoswell
 Tags: ads, sidebar, widget
 Requires at least: 2.7
 Tested up to: 2.7.1
-Stable tag: 0.2
+Stable tag: 0.3
 Donate link: http://www.coswellproductions.com/wordpress/wordpress-plugins/
 
-Plugin Wonderful lets Project Wonderful publishers quickly and easily add their adboxes to thier WordPress blog.
+Plugin Wonderful lets Project Wonderful publishers quickly and easily add their adboxes to thier WordPress site.
 
 == Description ==
 
-Plugin Wonderful downloads your adbox information from Project Wonderful and creates a series of widgets that can easily be added to your sidebars. It also adds a new template tag, `the_project_wonderful_ad()`, that lets you embed Project Wonderful ads directly into your site. Adbox code is downloaded straight from Project Wonderful, so your adboxes are always displayed correctly.
+Plugin Wonderful downloads your adbox information from Project Wonderful and creates a series of widgets that can easily be added to your sidebars. It also adds a new template tag, `the_project_wonderful_ad()`, that lets you embed Project Wonderful ads directly into your site. Adbox code is downloaded straight from Project Wonderful, so your adboxes are always displayed correctly. You can also easily activate new ads without having to modify your theme.
+
+== Installation ==
+
+Copy the plugin-wonderful folder to your wp-content/plugins folder and activate it from Plugins -> Installed. Activating the plugin creates a new database table, {prefix}_pw_adboxes, that you can safely remove if you are no longer using the plugin.
 
 == Frequently Asked Questions ==
 
@@ -24,8 +28,22 @@ If you want to refer to an ad by an arbitrary name, rather than the adbox id, yo
 
 `the_project_wonderful_ad('header')`
 
+= How does quick ad activation work? =
+
+When you create an adbox on Project Wonderful, before people can bid on the ad you need to activate the adbox, by placing in on your page and letting PW check the ad's existence. Since only activated ads appear in your adbox listing, you can't automatically ad the adbox to your site. Quick activation lets you temporarily place the adbox code from PW into the footer of all pages on your site so that PW can find the ad for activation purposes. After it's activated, it will appear in your adbox list. Follow the instructions given by the plugin to quickly activate new Project Wonderful ads.
+
 = How robust is placing ads in the RSS feed? =
 
 Project Wonderful does support placing ads in the RSS feed. In this case, all of the JavaScript is stripped out, since many RSS feed readers don't support JavaScript in the feed. The ads are placed above any excerpts in the feed. Some readers may not like the markup used. Until further testing is done, there are no good answers on how well PW ads delivered by Plugin Wonderful will perform.
 
 Additonally, the ad that you use in your RSS feed will need to be accessible by Project Wonderful's ad verification crawlers, so you'll need to place the ad somewhere on your site before you can use it in your RSS feed.
+
+= How often is adbox information redownloaded? =
+
+Plugin Wonderful checks your Project Wonderful account every 12 hours for adbox changes. If there are any, it will apply the changes to your adboxes.
+
+= I am a theme author who wants to include pre-built hooks for Project Wonderful ads. How do I safely add those hooks? =
+
+Wrap the call to `the_project_wonderful_ad()` in a `function_exists()` call:
+
+`<?php if (function_exists('the_project_wonderful_ad')) { the_project_wonderful_ad('header'); } ?>`

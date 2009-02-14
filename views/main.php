@@ -34,13 +34,12 @@
     <input type="hidden" name="action" value="change-adbox-settings" />
     <table class="widefat post fixed">
       <tr>
-        <th width="15%" class="manage-column"><?php _e('Site Name', 'plugin-wonderful') ?></th>
-        <th width="15%" class="manage-column"><?php _e('Description', 'plugin-wonderful') ?></th>
+        <th width="12%" class="manage-column"><?php _e('Site Name', 'plugin-wonderful') ?></th>
+        <th width="13%" class="manage-column"><?php _e('Description', 'plugin-wonderful') ?></th>
         <th class="manage-column" align="center"><?php _e('Size &amp; Dimensions', 'plugin-wonderful') ?></th>
-        <th class="manage-column" align="center"><?php _e('Category', 'plugin-wonderful') ?></th>
-        <th class="manage-column" align="center"><?php _e('Template Tag Identifier', 'plugin-wonderful') ?></th>
+        <th width="100" class="manage-column" align="center"><?php _e('Template Tag Identifier', 'plugin-wonderful') ?></th>
         <th class="manage-column" align="center"><?php _e('Use in RSS Feed?', 'plugin-wonderful') ?></th>
-        <th style="text-align: right !important" width="30%" class="manage-column"><?php _e('Raw Template Tag <em>(for direct use in theme)</em>', 'plugin-wonderful') ?></th>
+        <th style="text-align: right !important" width="35%" class="manage-column"><?php _e('Raw Template Tag <em>(for direct use in theme)</em>', 'plugin-wonderful') ?></th>
       </tr>
       <?php
         $first_adboxid = null;
@@ -64,8 +63,7 @@
               ?>
             </td>
             <td><?php echo $adbox->adtype ?> - <?php echo $adbox->dimensions ?></td>
-            <td><?php echo $adbox->category ?></td>
-            <td><input type="text" size="8" name="template_tag_id[<?php echo $adbox->adboxid ?>]" value="<?php echo $adbox->template_tag_id ?>" /></td>
+            <td><input type="text" style="width: 100px" name="template_tag_id[<?php echo $adbox->adboxid ?>]" value="<?php echo $adbox->template_tag_id ?>" /></td>
             <td align="center"><input type="checkbox" name="in_rss_feed[<?php echo $adbox->adboxid ?>]" value="yes" <?php echo !empty($adbox->in_rss_feed) ? " checked" : "" ?> /></td>
             <td align="right">
               <tt>the_project_wonderful_ad(<?php
@@ -85,7 +83,28 @@
       <input type="submit" class="button" value="<?php _e('Submit Adbox Changes', 'plugin-wonderful') ?>" />
     </div>
   </form>
+<?php } ?>
 
+<table class="form-table" cellspacing="0">
+  <tr>
+    <td style="padding-left: 0" width="30%">
+      <h3><?php _e('Quickly Set Up A New Adbox For Activation', 'plugin-wonderful') ?></h3>
+
+      <p><?php _e("Copy and paste your new ad's code from Project Wonderful into the textbox on the right and click Submit. Your ad will appear in the footer of all the pages on your site so that Project Wonderful can detect it. Click the Finished button after you've activated your ad and it will appear in the list of available advertisements above.", 'plugin-wonderful') ?></p>
+    </td>
+    <td style="padding-right: 0">
+      <form action="" method="post">
+        <input type="hidden" name="action" value="activate-ad" />
+        <textarea name="activate-ad-code" style="width: 100%; height: 100px"><?php echo get_option('plugin-wonderful-activate-ad-code') ?></textarea>
+        <br />
+        <input class="button" type="submit" name="submit" value="Submit" />
+        <input class="button" type="submit" name="finished" value="Finished" />
+      </form>
+    </td>
+  </tr>
+</table>
+
+<?php if ($this->publisher_info !== false) { ?>
   <h3><?php _e('Using Widgets to Put Ads on Your Site', 'plugin-wonderful') ?></h3>
   <p>
     <?php _e('Visit <a href="widgets.php">Appearance -> Widgets</a> to quickly add Project Wonderful advertisements to your site. Plugin Wonderful widgets start with &quot;PW&quot;.', 'plugin-wonderful') ?>
