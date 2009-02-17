@@ -85,25 +85,6 @@
   </form>
 <?php } ?>
 
-<table class="form-table" cellspacing="0">
-  <tr>
-    <td style="padding-left: 0" width="30%">
-      <h3><?php _e('Quickly Set Up A New Adbox For Activation', 'plugin-wonderful') ?></h3>
-
-      <p><?php _e("Copy and paste your new ad's code from Project Wonderful into the textbox on the right and click Submit. Your ad will appear in the footer of all the pages on your site so that Project Wonderful can detect it. Click the Finished button after you've activated your ad and it will appear in the list of available advertisements above.", 'plugin-wonderful') ?></p>
-    </td>
-    <td style="padding-right: 0">
-      <form action="" method="post">
-        <input type="hidden" name="action" value="activate-ad" />
-        <textarea name="activate-ad-code" style="width: 100%; height: 100px"><?php echo get_option('plugin-wonderful-activate-ad-code') ?></textarea>
-        <br />
-        <input class="button" type="submit" name="submit" value="Submit" />
-        <input class="button" type="submit" name="finished" value="Finished" />
-      </form>
-    </td>
-  </tr>
-</table>
-
 <?php if ($this->publisher_info !== false) { ?>
   <h3><?php _e('Using Widgets to Put Ads on Your Site', 'plugin-wonderful') ?></h3>
   <p>

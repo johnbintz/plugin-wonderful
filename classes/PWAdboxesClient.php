@@ -2,7 +2,7 @@
 
 require_once('PublisherInfo.php');
 
-define("PLUGIN_WONDERFUL_DATABASE_VERSION", 2);
+define("PLUGIN_WONDERFUL_DATABASE_VERSION", 3);
 
 /**
  * The interface to the PW database table.
@@ -31,8 +31,8 @@ class PWAdboxesClient {
                  adtype char(30) NOT NULL,
                  url char(255) NOT NULL,
                  dimensions char(10) NOT NULL,
-                 rating char(10) NOT NULL,
-                 category char(30) NOT NULL,
+                 rating char(30) NOT NULL,
+                 category char(50) NOT NULL,
                  description text NOT NULL,
                  tags text NOT NULL,
                  standardcode text NOT NULL,

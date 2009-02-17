@@ -3,7 +3,7 @@ Contributors: johncoswell
 Tags: ads, sidebar, widget
 Requires at least: 2.7
 Tested up to: 2.7.1
-Stable tag: 0.3
+Stable tag: 0.4
 Donate link: http://www.coswellproductions.com/wordpress/wordpress-plugins/
 
 Plugin Wonderful lets Project Wonderful publishers quickly and easily add their adboxes to thier WordPress site.
@@ -14,7 +14,7 @@ Plugin Wonderful downloads your adbox information from Project Wonderful and cre
 
 == Installation ==
 
-Copy the plugin-wonderful folder to your wp-content/plugins folder and activate it from Plugins -> Installed. Activating the plugin creates a new database table, {prefix}_pw_adboxes, that you can safely remove if you are no longer using the plugin.
+Copy the plugin-wonderful folder to your wp-content/plugins folder and activate it from Plugins -> Installed. Activating the plugin creates a new database table, `{prefix}_pw_adboxes`, that you can safely remove if you are no longer using the plugin.
 
 == Frequently Asked Questions ==
 
@@ -27,10 +27,6 @@ Log in to your Project Wonderful account and view your profile by clicking on yo
 If you want to refer to an ad by an arbitrary name, rather than the adbox id, you can give the specific ad a tag, and then use that tag instead of the adbox id in `the_project_wonderful_ad()`. For example, tag an ad with the name "header" and you can refer to it in your theme with:
 
 `the_project_wonderful_ad('header')`
-
-= How does quick ad activation work? =
-
-When you create an adbox on Project Wonderful, before people can bid on the ad you need to activate the adbox, by placing in on your page and letting PW check the ad's existence. Since only activated ads appear in your adbox listing, you can't automatically ad the adbox to your site. Quick activation lets you temporarily place the adbox code from PW into the footer of all pages on your site so that PW can find the ad for activation purposes. After it's activated, it will appear in your adbox list. Follow the instructions given by the plugin to quickly activate new Project Wonderful ads.
 
 = How robust is placing ads in the RSS feed? =
 
