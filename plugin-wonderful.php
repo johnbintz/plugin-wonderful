@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 require_once('classes/PWAdboxesClient.php');
+//require_once('FirePHPCore/fb.php');
 
 define('PLUGIN_WONDERFUL_XML_URL', 'http://www.projectwonderful.com/xmlpublisherdata.php?publisher=%d');
 define('PLUGIN_WONDERFUL_UPDATE_TIME', 60 * 60 * 12); // every 12 hours
@@ -71,6 +72,7 @@ class PluginWonderful {
         }
       }
     }
+    return $content;
   }
 
   function insert_activation_ad() {
@@ -167,6 +169,9 @@ class PluginWonderful {
           if (isset($_POST['template_tag_id'][$box->adboxid])) {
             $tag = $_POST['template_tag_id'][$box->adboxid];
             $prior_value = $box->template_tag_id;
+
+            $tag = $this->adboxes_client->trim_field('template_tag_id', $tag);
+
             $this->adboxes_client->set_template_tag($box->adboxid, $tag);
             $box->template_tag_id = $tag;
 

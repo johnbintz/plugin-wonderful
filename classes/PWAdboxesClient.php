@@ -14,6 +14,23 @@ class PWAdboxesClient {
 
     $this->table_name = $wpdb->prefix . "pw_adboxes";
     $this->table_exists = false;
+
+    $this->schema_info = array(
+      array('type', 'int', '1', "NOT NULL"),
+      array('adboxid', 'int', '11', "NOT NULL"),
+      array('sitename', 'char', '100', 'NOT NULL'),
+      array('adtype', 'char', '30', 'NOT NULL'),
+      array('url', 'char', '255', 'NOT NULL'),
+      array('dimensions', 'char', '10', 'NOT NULL'),
+      array('rating', 'char', '30', 'NOT NULL'),
+      array('category', 'char', '50', 'NOT NULL'),
+      array('description', 'text', '', 'NOT NULL'),
+      array('tags', 'text', '', 'NOT NULL'),
+      array('standardcode', 'text', '', 'NOT NULL'),
+      array('advancedcode', 'text', '', 'NOT NULL'),
+      array('template_tag_id', 'char', '30', ''),
+      array('in_rss_feed', 'int', '1', '')
+    );
   }
 
   /**
@@ -23,23 +40,20 @@ class PWAdboxesClient {
     global $wpdb;
 
     if ($wpdb->get_var("SHOW TABLES LIKE {$this->table_name}") != $this->table_name) {
+      $sql = "CREATE TABLE {$this->table_name} (\n";
+
+      $statements = array();
+      foreach ($this->schema_info as $info) {
+        list($name, $type, $size, $extra) = $info;
+        $statement = "{$name} {$type}";
+        if (!empty($size)) { $statement .= "({$size})"; }
+        if (!empty($extra)) { $statement .= " {$extra}"; }
+        $statements[] = $statement;
+      }
+
+      $sql .= implode(",\n", $statements) . ");";
+
       if (!$wpdb->is_mock) {
-        $sql = "CREATE TABLE {$this->table_name} (
-                 type int(1) NOT NULL,
-                 adboxid int(11) NOT NULL,
-                 sitename char(100) NOT NULL,
-                 adtype char(30) NOT NULL,
-                 url char(255) NOT NULL,
-                 dimensions char(10) NOT NULL,
-                 rating char(30) NOT NULL,
-                 category char(50) NOT NULL,
-                 description text NOT NULL,
-                 tags text NOT NULL,
-                 standardcode text NOT NULL,
-                 advancedcode text NOT NULL,
-                 template_tag_id char(30),
-                 in_rss_feed int(1)
-               );";
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
       }
@@ -84,14 +98,20 @@ class PWAdboxesClient {
             }
           }
 
-          foreach ((array)$box as $key => $value) {
+          foreach ($this->schema_info as $info) {
+            list($key, $column_type, $size, $extra) = $info;
+
             if ($key !== "type") {
               $columns[] = $key;
+              $value = $box->{$key};
+              if (!empty($size)) { $value = substr($value, 0, $size); }
               $values[]  = '"' . $wpdb->escape($value) . '"';
             }
           }
 
-          if (!$wpdb->query("INSERT INTO {$this->table_name} (" . implode(",", $columns) . ") VALUES (" . implode(",", $values) . ")")) {
+          $sql = "INSERT INTO {$this->table_name} (" . implode(",", $columns) . ") VALUES (" . implode(",", $values) . ")";
+
+          if (!$wpdb->query($sql)) {
             return false;
           }
         }
@@ -141,11 +161,23 @@ class PWAdboxesClient {
     $wpdb->query("DELETE FROM {$this->table_name}");
   }
 
+  function trim_field($field, $value) {
+    foreach ($this->schema_info as $info) {
+      list($key, $type, $size, $extra) = $info;
+      if ($key == $field) {
+        $value = substr($value, 0, $size); break;
+      }
+    }
+    return $value;
+  }
+
   /**
    * Set the template tag id for an advertisement.
    */
   function set_template_tag($adboxid, $tag) {
     global $wpdb;
+
+    $tag = $this->trim_field('template_tag_id', $tag);
 
     $query  = "UPDATE {$this->table_name} SET ";
     $query .= "template_tag_id = '" . $wpdb->escape($tag) . "'";

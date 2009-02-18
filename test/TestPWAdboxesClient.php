@@ -23,7 +23,7 @@ class TestPWAdboxesClient extends PHPUnit_Framework_TestCase {
     $wpdb->prefix = "wp_";
     $wpdb->is_mock = true;
 
-    $wpdb->expects($this->once())->method('get_var')->with($this->equalTo("SHOW TABLES LIKE {$this->database_client->table_name}"));
+    $wpdb->expects($this->once())->method('get_var')->with($this->equalTo("SHOW TABLES LIKE {$this->database_client->table_name}"))->will($this->returnValue(array()));
 
     $this->database_client->initialize();
   }
@@ -163,12 +163,50 @@ class TestPWAdboxesClient extends PHPUnit_Framework_TestCase {
     $this->assertEquals($this->target_ad, $this->database_client->get_ad_by_template_tag(1, $test_tag));
   }
 
+  function testDataTooLarge() {
+    global $wpdb;
+    $wpdb = $this->getMock('wpdb', array('escape', 'query', 'get_results'));
+    $wpdb->prefix = "wp_";
+
+    $ads = $this->getMock('PublisherInfo', array());
+    $ads->member_id = "1";
+    $ads->is_valid = true;
+
+    $large_sample_ad = array();
+
+    foreach (array('adboxid', 'sitename', 'url',
+                   'dimensions', 'rating', 'category',
+                   'description', 'tags', 'standardcode',
+                   'advancedcode', 'adtype', 'template_tag_id',
+                   'in_rss_feed') as $field) {
+      $large_sample_ad[$field] = $field . "-" . str_repeat("x", 300);
+    }
+
+    $ads->adboxes = array((object)$large_sample_ad);
+
+    $wpdb->expects($this->exactly(13))->method('escape')->will($this->returnCallback(array($this, 'postDataTooLargeCallback')));
+    $wpdb->expects($this->exactly(2))->method('query');
+    $wpdb->expects($this->exactly(1))->method('get_results');
+
+    $this->escape_count = 1;
+    $this->database_client->post_ads($ads, PW_ADBOXES_PROJECT_WONDERFUL);
+  }
+
   function postAdsCallback($query) {
     if (strpos($query, "DELETE") === 0) {
       return $query == ("DELETE FROM {$this->database_client->table_name} WHERE type = " . PW_ADBOXES_PROJECT_WONDERFUL);
     } else {
       return true;
     }
+  }
+
+  function postDataTooLargeCallback($query) {
+    $size = $this->database_client->schema_info[$this->escape_count][2];
+    if (!empty($size)) {
+      $this->assertTrue(strlen($query) <= $size);
+    }
+
+    $this->escape_count++;
   }
 
   function postAdsFilterCallback($query) {
