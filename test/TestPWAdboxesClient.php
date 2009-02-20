@@ -14,7 +14,7 @@ class TestPWAdboxesClient extends PHPUnit_Framework_TestCase {
                                      'dimensions' => "1x1", 'rating' => "a", 'category' => "a",
                                      'description' => "a", 'tags' => 'a', 'standardcode' => 'a',
                                      'advancedcode' => 'a', 'adtype' => 'a', 'template_tag_id' => 'a',
-                                     'in_rss_feed' => 0);
+                                     'in_rss_feed' => 0, 'center_widget' => 0);
   }
 
   function testCreateTables() {
@@ -23,7 +23,7 @@ class TestPWAdboxesClient extends PHPUnit_Framework_TestCase {
     $wpdb->prefix = "wp_";
     $wpdb->is_mock = true;
 
-    $wpdb->expects($this->once())->method('get_var')->with($this->equalTo("SHOW TABLES LIKE {$this->database_client->table_name}"))->will($this->returnValue(array()));
+    $wpdb->expects($this->once())->method('get_var')->with($this->equalTo("SHOW TABLES LIKE '{$this->database_client->table_name}'"))->will($this->returnValue(array()));
 
     $this->database_client->initialize();
   }
@@ -50,13 +50,31 @@ class TestPWAdboxesClient extends PHPUnit_Framework_TestCase {
 
     $ads->adboxes = array($this->sample_ad);
 
-    $wpdb->expects($this->exactly(13))->method('escape');
+    $wpdb->expects($this->exactly(14))->method('escape');
     $wpdb->expects($this->exactly(2))->method('query')->will($this->returnCallback(array($this, 'postAdsCallback')));
-    $wpdb->expects($this->exactly(1))->method('get_results')->will($this->returnValue(array()))->with("SELECT adboxid, template_tag_id, in_rss_feed FROM {$this->database_client->table_name}");
+    $wpdb->expects($this->exactly(1))->method('get_results')->will($this->returnValue(array()))->with("SELECT adboxid, template_tag_id, in_rss_feed, center_widget FROM {$this->database_client->table_name}");
 
     $this->database_client->post_ads($ads, PW_ADBOXES_PROJECT_WONDERFUL);
   }
 
+  function testPostAdsEmptyColumn() {
+    global $wpdb;
+    $wpdb = $this->getMock('wpdb', array('escape', 'query', 'get_results'));
+    $wpdb->prefix = "wp_";
+
+    $ads = $this->getMock('PublisherInfo', array());
+    $ads->member_id = "1";
+    $ads->is_valid = true;
+
+    $this->sample_ad->in_rss_feed = "";
+
+    $ads->adboxes = array($this->sample_ad);
+
+    $wpdb->expects($this->exactly(2))->method('query')->will($this->returnCallback(array($this, 'postAdsEmptyColumnCallback')));
+
+    $this->database_client->post_ads($ads, PW_ADBOXES_PROJECT_WONDERFUL);
+  }
+  
   function testRetrieveAds() {
     global $wpdb;
     $wpdb = $this->getMock('wpdb', array('get_results'));
@@ -178,13 +196,13 @@ class TestPWAdboxesClient extends PHPUnit_Framework_TestCase {
                    'dimensions', 'rating', 'category',
                    'description', 'tags', 'standardcode',
                    'advancedcode', 'adtype', 'template_tag_id',
-                   'in_rss_feed') as $field) {
+                   'in_rss_feed', 'center_widget') as $field) {
       $large_sample_ad[$field] = $field . "-" . str_repeat("x", 300);
     }
 
     $ads->adboxes = array((object)$large_sample_ad);
 
-    $wpdb->expects($this->exactly(13))->method('escape')->will($this->returnCallback(array($this, 'postDataTooLargeCallback')));
+    $wpdb->expects($this->exactly(14))->method('escape')->will($this->returnCallback(array($this, 'postDataTooLargeCallback')));
     $wpdb->expects($this->exactly(2))->method('query');
     $wpdb->expects($this->exactly(1))->method('get_results');
 
@@ -195,6 +213,14 @@ class TestPWAdboxesClient extends PHPUnit_Framework_TestCase {
   function postAdsCallback($query) {
     if (strpos($query, "DELETE") === 0) {
       return $query == ("DELETE FROM {$this->database_client->table_name} WHERE type = " . PW_ADBOXES_PROJECT_WONDERFUL);
+    } else {
+      return true;
+    }
+  }
+
+  function postAdsEmptyColumnCallback($query) {
+    if (strpos($query, "INSERT") === 0) {
+      return strpos($query, '"0")') !== false;
     } else {
       return true;
     }

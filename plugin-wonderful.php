@@ -3,7 +3,7 @@
 Plugin Name: Plugin Wonderful
 Plugin URI: http://www.coswellproductions.com/wordpress/wordpress-plugins/
 Description: Easily embed a Project Wonderful publisher's advertisements.
-Version: 0.4
+Version: 0.4.2
 Author: John Bintz
 Author URI: http://www.coswellproductions.org/wordpress/
 
@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 require_once('classes/PWAdboxesClient.php');
-//require_once('FirePHPCore/fb.php');
+require_once('FirePHPCore/fb.php');
 
 define('PLUGIN_WONDERFUL_XML_URL', 'http://www.projectwonderful.com/xmlpublisherdata.php?publisher=%d');
 define('PLUGIN_WONDERFUL_UPDATE_TIME', 60 * 60 * 12); // every 12 hours
@@ -55,8 +55,11 @@ class PluginWonderful {
 
     $result = get_option('plugin-wonderful-database-version');
     if (empty($result) || ($result < PLUGIN_WONDERFUL_DATABASE_VERSION)) {
-      $this->adboxes_client->initialize();
-      update_option('plugin-wonderful-database-version', PLUGIN_WONDERFUL_DATABASE_VERSION);
+      if ($this->adboxes_client->initialize(true)) {
+        update_option('plugin-wonderful-database-version', PLUGIN_WONDERFUL_DATABASE_VERSION);
+      } else {
+        $this->messages[] = "Unable to update database schema!";
+      }
     }
 
     if (!empty($_POST)) { $this->handle_action(); }
@@ -85,10 +88,14 @@ class PluginWonderful {
       foreach ($this->publisher_info->adboxes as $adbox) {
         if (($adbox->adboxid == $adboxid) || ($adbox->template_tag_id == $adboxid)) {
           if (get_option("plugin-wonderful-use-standardcode") == 1) {
-            echo $adbox->standardcode;
+            $output = $adbox->standardcode;
           } else {
-            echo $adbox->advancedcode;
+            $output = $adbox->advancedcode;
           }
+          if ($adbox->center_widget == 1) {
+            $output = "<center>{$output}</center>";
+          }
+          echo $output;
           break;
         }
       }
@@ -105,7 +112,20 @@ class PluginWonderful {
         foreach ($widgets as $widget_info) {
           extract($widget_info);
           wp_register_sidebar_widget($id, $name, array($this, 'render_widget'), "", $options['adboxid']);
+          register_widget_control($id, array($this, 'render_widget_control'), null, null, $options['adboxid']);
         }
+      }
+    }
+  }
+
+  function render_widget_control($adboxid) {
+    foreach ($this->publisher_info->adboxes as $box) {
+      if ($box->adboxid == $adboxid) {
+        echo '<label>';
+          echo '<input type="checkbox" name="pw[center][' . $adboxid . ']" ' . (($box->center_widget == 1) ? "checked" : "") . ' /> ';
+          echo 'Wrap ad in &lt;center&gt; tags';
+        echo '</label>';
+        break;
       }
     }
   }
@@ -159,53 +179,75 @@ class PluginWonderful {
   function handle_action() {
     $action = "handle_action_" . str_replace("-", "_", preg_replace('#[^a-z\-]#', '', strtolower($_POST['action'])));
     if (method_exists($this, $action)) { call_user_func(array($this, $action)); }
+
+    // handle widget updates
+    if (isset($_POST['save-widgets'])) { $this->handle_action_save_widgets(); }
+  }
+
+  function handle_action_save_widgets() {
+    $new_boxes = array();
+    foreach ($this->publisher_info->adboxes as $box) {
+      if (isset($_POST['pw']['center'][$box->adboxid])) {
+        $this->adboxes_client->set_widget_centering($box->adboxid, true);
+        $box->center_widget = "1";
+      } else {
+        $this->adboxes_client->set_widget_centering($box->adboxid, false);
+        $box->center_widget = "0";
+      }
+      $new_boxes[] = $box;
+    }
+    $this->publisher_info->adboxes = $new_boxes;
   }
 
   function handle_action_change_adbox_settings() {
     if ($member_id = get_option('plugin-wonderful-memberid')) {
       if (isset($_POST['template_tag_id']) && is_array($_POST['template_tag_id'])) {
-        $new_boxes = array();
-        foreach ($this->publisher_info->adboxes as $box) {
-          if (isset($_POST['template_tag_id'][$box->adboxid])) {
-            $tag = $_POST['template_tag_id'][$box->adboxid];
-            $prior_value = $box->template_tag_id;
+        if (is_array($this->publisher_info->adboxes)) {
+          $new_boxes = array();
+          foreach ($this->publisher_info->adboxes as $box) {
+            if (isset($_POST['template_tag_id'][$box->adboxid])) {
+              $tag = $_POST['template_tag_id'][$box->adboxid];
+              $prior_value = $box->template_tag_id;
 
-            $tag = $this->adboxes_client->trim_field('template_tag_id', $tag);
+              $tag = $this->adboxes_client->trim_field('template_tag_id', $tag);
 
-            $this->adboxes_client->set_template_tag($box->adboxid, $tag);
-            $box->template_tag_id = $tag;
+              $this->adboxes_client->set_template_tag($box->adboxid, $tag);
+              $box->template_tag_id = $tag;
 
-            if (!empty($tag) && ($prior_value != $tag)) {
-              $this->messages[] = sprintf(__('Template tag identifier for ad <strong>%1$s</strong> set to <strong>%2$s</strong>.', 'plugin-wonderful'), $box->adboxid, $tag);
-            } else {
-              if (!empty($prior_value) && empty($tag)) {
-                $this->messages[] = sprintf(__('Template tag identifier for ad <strong>%s</strong> removed.', 'plugin-wonderful'), $box->adboxid);
+              if (!empty($tag) && ($prior_value != $tag)) {
+                $this->messages[] = sprintf(__('Template tag identifier for ad <strong>%1$s</strong> set to <strong>%2$s</strong>.', 'plugin-wonderful'), $box->adboxid, $tag);
+              } else {
+                if (!empty($prior_value) && empty($tag)) {
+                  $this->messages[] = sprintf(__('Template tag identifier for ad <strong>%s</strong> removed.', 'plugin-wonderful'), $box->adboxid);
+                }
               }
             }
+            $new_boxes[] = $box;
+          }
+          $this->publisher_info->adboxes = $new_boxes;
+        }
+      }
+
+      if (is_array($this->publisher_info->adboxes)) {
+        $new_boxes = array();
+        foreach ($this->publisher_info->adboxes as $box) {
+          if (isset($_POST['in_rss_feed'][$box->adboxid])) {
+            $this->adboxes_client->set_rss_feed_usage($box->adboxid, true);
+            if ($box->in_rss_feed == 0) {
+              $this->messages[] = sprintf(__('RSS feed usage for ad <strong>%1$s</strong> enabled.', 'plugin-wonderful'), $box->adboxid);
+            }
+            $box->in_rss_feed = "1";
+          } else {
+            $this->adboxes_client->set_rss_feed_usage($box->adboxid, false);
+            if ($box->in_rss_feed == 1) {
+              $this->messages[] = sprintf(__('RSS feed usage for ad <strong>%1$s</strong> disabled.', 'plugin-wonderful'), $box->adboxid);
+            }
+            $box->in_rss_feed = "0";
           }
           $new_boxes[] = $box;
         }
         $this->publisher_info->adboxes = $new_boxes;
       }
-
-      $new_boxes = array();
-      foreach ($this->publisher_info->adboxes as $box) {
-        if (isset($_POST['in_rss_feed'][$box->adboxid])) {
-          $this->adboxes_client->set_rss_feed_usage($box->adboxid, true);
-          if ($box->in_rss_feed == 0) {
-            $this->messages[] = sprintf(__('RSS feed usage for ad <strong>%1$s</strong> enabled.', 'plugin-wonderful'), $box->adboxid);
-          }
-          $box->in_rss_feed = "1";
-        } else {
-          $this->adboxes_client->set_rss_feed_usage($box->adboxid, false);
-          if ($box->in_rss_feed == 1) {
-            $this->messages[] = sprintf(__('RSS feed usage for ad <strong>%1$s</strong> disabled.', 'plugin-wonderful'), $box->adboxid);
-          }
-          $box->in_rss_feed = "0";
-        }
-        $new_boxes[] = $box;
-      }
-      $this->publisher_info->adboxes = $new_boxes;
     }
 
     if (count($this->messages) == 0) {

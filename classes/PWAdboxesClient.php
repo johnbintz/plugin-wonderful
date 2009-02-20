@@ -2,7 +2,7 @@
 
 require_once('PublisherInfo.php');
 
-define("PLUGIN_WONDERFUL_DATABASE_VERSION", 3);
+define("PLUGIN_WONDERFUL_DATABASE_VERSION", 4);
 
 /**
  * The interface to the PW database table.
@@ -29,17 +29,18 @@ class PWAdboxesClient {
       array('standardcode', 'text', '', 'NOT NULL'),
       array('advancedcode', 'text', '', 'NOT NULL'),
       array('template_tag_id', 'char', '30', ''),
-      array('in_rss_feed', 'int', '1', '')
+      array('in_rss_feed', 'int', '1', ''),
+      array('center_widget', 'int', '1', '')
     );
   }
 
   /**
    * Initialize the table if it doesn't exist.
    */
-  function initialize() {
+  function initialize($force = false) {
     global $wpdb;
 
-    if ($wpdb->get_var("SHOW TABLES LIKE {$this->table_name}") != $this->table_name) {
+    if (($wpdb->get_var("SHOW TABLES LIKE '{$this->table_name}'") != $this->table_name) || $force) {
       $sql = "CREATE TABLE {$this->table_name} (\n";
 
       $statements = array();
@@ -56,8 +57,12 @@ class PWAdboxesClient {
       if (!$wpdb->is_mock) {
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($sql);
+
+        return true;
       }
     }
+
+    return false;
   }
 
   /**
@@ -81,7 +86,7 @@ class PWAdboxesClient {
       if ($ads->is_valid) {
         $mappings = array();
 
-        if (is_array($results = $wpdb->get_results("SELECT adboxid, template_tag_id, in_rss_feed FROM {$this->table_name}"))) {
+        if (is_array($results = $wpdb->get_results("SELECT adboxid, template_tag_id, in_rss_feed, center_widget FROM {$this->table_name}"))) {
           foreach ($results as $result) {
             $mappings[$result->adboxid] = $result;
           }
@@ -105,6 +110,11 @@ class PWAdboxesClient {
               $columns[] = $key;
               $value = $box->{$key};
               if (!empty($size)) { $value = substr($value, 0, $size); }
+              if (empty($value)) {
+                switch ($column_type) {
+                  case "int": $value = 0; break;
+                }
+              }
               $values[]  = '"' . $wpdb->escape($value) . '"';
             }
           }
@@ -203,18 +213,29 @@ class PWAdboxesClient {
     }
   }
 
-  /**
-   * Enable or disable RSS feed usage.
-   */
-  function set_rss_feed_usage($adboxid, $status = false) {
+  function _handle_toggle($column, $adboxid, $status = false) {
     global $wpdb;
 
     $query  = "UPDATE {$this->table_name} SET ";
-    $query .= "in_rss_feed = '" . ($status ? 1 : 0) . "'";
+    $query .= "{$column} = '" . ($status ? 1 : 0) . "'";
     $query .= " WHERE adboxid = '" . $wpdb->escape($adboxid) . "'";
 
     $result = $wpdb->get_results($query);
     return count($result) > 0;
+  }
+
+  /**
+   * Enable or disable RSS feed usage.
+   */
+  function set_rss_feed_usage($adboxid, $status = false) {
+    return $this->_handle_toggle("in_rss_feed", $adboxid, $status);
+  }
+
+  /**
+   * Enable or disable widget centering.
+   */
+  function set_widget_centering($adboxid, $status = false) {
+    return $this->_handle_toggle("center_widget", $adboxid, $status);
   }
 }
 
