@@ -3,7 +3,7 @@
 Plugin Name: Plugin Wonderful
 Plugin URI: http://www.coswellproductions.com/wordpress/wordpress-plugins/
 Description: Easily embed a Project Wonderful publisher's advertisements.
-Version: 0.4.2
+Version: 0.4.3
 Author: John Bintz
 Author URI: http://www.coswellproductions.org/wordpress/
 
@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 require_once('classes/PWAdboxesClient.php');
-require_once('FirePHPCore/fb.php');
+// require_once('FirePHPCore/fb.php');
 
 define('PLUGIN_WONDERFUL_XML_URL', 'http://www.projectwonderful.com/xmlpublisherdata.php?publisher=%d');
 define('PLUGIN_WONDERFUL_UPDATE_TIME', 60 * 60 * 12); // every 12 hours
