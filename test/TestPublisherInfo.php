@@ -3,7 +3,7 @@
 require_once('../classes/PublisherInfo.php');
 
 class TestPublisherInfo extends PHPUnit_Framework_TestCase {
-  private $parser, $default_data;
+  private $parser, $default_data, $default_data_as_hash;
 
   public function setup() {
     $this->parser = new PublisherInfo();
@@ -18,10 +18,17 @@ class TestPublisherInfo extends PHPUnit_Framework_TestCase {
       array("a", 'description'),
       array("a", 'tags'),
       array("a", 'standardcode'),
-      array("a", 'advancedcode'),
+      array("b", 'advancedcode'),
       array(PW_ADBOXES_PROJECT_WONDERFUL, "type")
     );
-  }
+
+    $default_data_as_hash = array();
+    foreach ($this->default_data as $info) {
+      list($value, $param) = $info;
+      $default_data_as_hash[$param] = $value;
+    }
+    $this->default_data_as_hash = (object)$default_data_as_hash;
+}
 
   public static function badDataProvider() {
     return array(
@@ -60,7 +67,7 @@ class TestPublisherInfo extends PHPUnit_Framework_TestCase {
   }
 
   public function testPWAPI() {
-    $this->parser->parse('<pw:member memberid="1"><pw:adboxes><pw:adbox type="a" adboxid="3" sitename="a" url="http://meow.raow/" dimensions="1x1" rating="a" category="a"><pw:description>a</pw:description><pw:tags>a</pw:tags><pw:standardcode>a</pw:standardcode><pw:advancedcode>a</pw:advancedcode></pw:adbox></pw:adboxes></pw:member>');
+    $this->parser->parse('<pw:member memberid="1"><pw:adboxes><pw:adbox type="a" adboxid="3" sitename="a" url="http://meow.raow/" dimensions="1x1" rating="a" category="a"><pw:description>a</pw:description><pw:tags>a</pw:tags><pw:standardcode>a</pw:standardcode><pw:advancedcode>b</pw:advancedcode></pw:adbox></pw:adboxes></pw:member>');
 
     $this->assertEquals(1, $this->parser->memberid);
     $this->assertEquals(1, count($this->parser->adboxes));
@@ -110,6 +117,27 @@ class TestPublisherInfo extends PHPUnit_Framework_TestCase {
       $default_data_as_hash[$param] = $value;
     }
     $this->parser->adboxes = array((object)$default_data_as_hash);
+  }
+
+  function adBodyInjectionData() {
+    return array(
+      array("", "", false),
+      array("test", "test", false),
+      array("PW(3)", "b", false),
+      array("PW(c)", "b", false),
+      array("PW(3)", "a", true),
+      array("PW(c)", "a", true),
+      array("PW\(3\)", "PW(3)", false),
+    );
+  }
+
+  /**
+   * @dataProvider adBodyInjectionData
+   */
+  function testInjectAdsIntoBodyCopy($copy, $result, $use_standardcode) {
+    $this->parser->adboxes[0] = $this->default_data_as_hash;
+    $this->parser->adboxes[0]->template_tag_id = "c";
+    $this->assertEquals($result, $this->parser->inject_ads_into_body_copy($copy, $use_standardcode));
   }
 }
 

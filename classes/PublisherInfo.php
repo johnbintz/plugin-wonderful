@@ -128,6 +128,22 @@ class PublisherInfo {
       return false;
     }
   }
+  
+  /**
+   * Inject ads into body copy.
+   * @param string $copy The body copy to inject the ads into.
+   * @return string The body copy with injected ads.
+   */
+   function inject_ads_into_body_copy($copy, $use_standardcode = false) {
+     foreach ($this->adboxes as $adbox) {
+       foreach (array('adboxid', 'template_tag_id') as $field) {
+         $code = $use_standardcode ? "standardcode" : "advancedcode";
+         $copy = str_replace("PW(" . $adbox->{$field} . ")", $adbox->{$code}, $copy);
+       }
+     }
+     $copy = preg_replace('#PW\\\\\(([^\\\]*)\\\\\)#', 'PW(\1)', $copy); // backslash alert!
+     return $copy;
+   }
 }
 
 ?>
