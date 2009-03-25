@@ -101,6 +101,12 @@ class PluginWonderful {
       }
     }
   }
+  
+  function inject_ads_into_body_copy($body) {
+    if ($this->publisher_info !== false) {
+      return $this->publisher_info->inject_ads_into_body_copy($body, (get_option("plugin-wonderful-use-standardcode") == 1));
+    }
+  }
 
   function set_up_menu() {
     add_options_page('Plugin Wonderful', __("Plugin Wonderful", 'plugin-wonderful'), 5, __FILE__, array($this, "plugin_wonderful_main"));
@@ -309,7 +315,9 @@ class PluginWonderful {
       $this->publisher_info = false;
     }
 
-    update_option('plugin-wonderful-use-standardcode', isset($_POST['use-standardcode']) ? "1" : "0");
+    foreach (array('use-standardcode', 'enable-body-copy-embedding') as $field) {
+      update_option("plugin-wonderful-${field}", isset($_POST[$field]) ? "1" : "0");
+    }
   }
 }
 
@@ -318,6 +326,7 @@ $plugin_wonderful = new PluginWonderful();
 add_action('admin_menu', array($plugin_wonderful, 'set_up_menu'));
 add_action('init', array($plugin_wonderful, 'set_up_widgets'));
 add_filter('the_excerpt_rss', array($plugin_wonderful, 'insert_rss_feed_ads'));
+add_filter('the_content', array($plugin_wonderful, 'inject_ads_into_body_copy'));
 
 register_activation_hook(__FILE__, array($plugin_wonderful, 'handle_activation'));
 

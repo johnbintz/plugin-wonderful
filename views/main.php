@@ -21,6 +21,17 @@
       </td>
     </tr>
     <tr>
+      <th scope="row"><?php _e('Enable Body Copy Embedding?', 'plugin-wonderful') ?></th>
+      <td>
+        <label>
+          <input type="checkbox"
+                 name="enable-body-copy-embedding"
+                 value="yes"
+                 <?php echo (get_option("plugin-wonderful-enable-body-copy-embedding") == 1) ? "checked" : "" ?> />
+          <em><?php _e('(When enabled, you can embed ads directly in body copy using a PW() tag. Read below for more details.)', 'plugin-wonderful') ?></em>
+        </label>
+      </td>
+    </tr>    <tr>
       <td>&nbsp;</td>
       <td>
         <input type="submit" value="<?php _e('Change and Redownload Adbox Information', 'plugin-wonderful') ?>" class="button" /> <em>(<?php _e('if you\'ve modified adbox settings on Project Wonderful, just click this button to refresh your adbox code.', 'plugin-wonderful') ?>)</em>
@@ -99,6 +110,18 @@
   <tt>
     &lt;?php the_project_wonderful_ad(<?php echo $first_adboxid ?>) ?&gt;
   </tt>
+
+
+  <h3><?php _e('Embedding Ads Directly In Body Copy', 'plugin-wonderful') ?></h3>
+  <p>
+    <?php _e('In your blog post, use a PW() tag with either the adbox ID or the template tag name to embed the adbox directly in your entry:', 'plugin-wonderful') ?>
+  </p>
+
+  <tt>PW(<?php echo $first_adboxid ?>)</tt>
+  
+  <p><?php _e('If you need to display the PW() code in your post, escape the parenthesis:', 'plugin-wonderful') ?></p>
+  
+  <tt>PW\(<?php echo $first_adboxid ?>\)</tt>
 
   <h3><?php _e('Inserting Ads Into Your RSS Feeds <em>(experimental)</em>', 'plugin-wonderful') ?></h3>
   <p>
