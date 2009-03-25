@@ -3,11 +3,11 @@
 Plugin Name: Plugin Wonderful
 Plugin URI: http://www.coswellproductions.com/wordpress/wordpress-plugins/
 Description: Easily embed a Project Wonderful publisher's advertisements.
-Version: 0.4.3
+Version: 0.4.4
 Author: John Bintz
 Author URI: http://www.coswellproductions.org/wordpress/
 
-Copyright 2009 John Bintz  (email : jcoswell@coswellproductions.org)
+Copyright 2009 John Bintz  (email : john@coswellproductions.com)
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

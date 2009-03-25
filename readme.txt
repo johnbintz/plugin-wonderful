@@ -3,7 +3,7 @@ Contributors: johncoswell
 Tags: ads, sidebar, widget
 Requires at least: 2.7
 Tested up to: 2.7.1
-Stable tag: 0.4.3
+Stable tag: 0.4.4
 Donate link: http://www.coswellproductions.com/wordpress/wordpress-plugins/
 
 Plugin Wonderful lets Project Wonderful publishers quickly and easily add their adboxes to thier WordPress site.
@@ -27,6 +27,16 @@ Log in to your Project Wonderful account and view your profile by clicking on yo
 If you want to refer to an ad by an arbitrary name, rather than the adbox id, you can give the specific ad a tag, and then use that tag instead of the adbox id in `the_project_wonderful_ad()`. For example, tag an ad with the name "header" and you can refer to it in your theme with:
 
 `the_project_wonderful_ad('header')`
+
+= How do I inject an ad into a blog post? =
+
+In the body of your post, place a `PW(adboxid|template tag)` reference:
+
+`This is my post, and here's an ad: PW(header)`
+
+You can use either the adbox's numeric ID or the template tag identifier for the ad. If you need to display the PW() tag on the page, escape the parenthesis:
+
+`Here's how you use Plugin Wonderful blog post tags: PW\(header\)`
 
 = How robust is placing ads in the RSS feed? =
 
