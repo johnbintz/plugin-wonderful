@@ -67,10 +67,12 @@ class PluginWonderful {
 
   function insert_rss_feed_ads($content) {
     if (is_feed()) {
-      foreach ($this->publisher_info->adboxes as $adbox) {
-        if ($adbox->in_rss_feed == 1) {
-          if (preg_match("#<noscript>(.*)</noscript>#mis", $adbox->advancedcode, $matches) > 0) {
-            echo $matches[1];
+      if ($this->publisher_info !== false) {
+        foreach ($this->publisher_info->adboxes as $adbox) {
+          if ($adbox->in_rss_feed == 1) {
+            if (preg_match("#<noscript>(.*)</noscript>#mis", $adbox->advancedcode, $matches) > 0) {
+              echo $matches[1];
+            }
           }
         }
       }
@@ -104,8 +106,11 @@ class PluginWonderful {
   
   function inject_ads_into_body_copy($body) {
     if ($this->publisher_info !== false) {
-      return $this->publisher_info->inject_ads_into_body_copy($body, (get_option("plugin-wonderful-use-standardcode") == 1));
+      if (get_option("plugin-wonderful-enable-body-copy-embedding") == 1) {
+        return $this->publisher_info->inject_ads_into_body_copy($body, (get_option("plugin-wonderful-use-standardcode") == 1));
+      }
     }
+    return $body;
   }
 
   function set_up_menu() {
