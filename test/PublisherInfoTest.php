@@ -1,6 +1,7 @@
 <?php
 
 require_once(dirname(__FILE__) . '/../classes/PublisherInfo.php');
+require_once(dirname(__FILE__) . '/../../mockpress/mockpress.php');
 
 class PublisherInfoTest extends PHPUnit_Framework_TestCase {
   private $parser, $default_data, $default_data_as_hash;
@@ -140,7 +141,5 @@ class PublisherInfoTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals($result, $this->parser->inject_ads_into_body_copy($copy, $use_standardcode));
   }
 }
-
-function __($string, $domain) { return $string; }
 
 ?>
