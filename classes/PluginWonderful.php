@@ -103,16 +103,18 @@ class PluginWonderful {
   }
 
   function render_widget_control($adboxid) {
-    foreach ($this->publisher_info->adboxes as $box) {
-      if ($box->adboxid == $adboxid) {
-				echo '<input type="hidden" name="pw[_nonce]" value="' . wp_create_nonce("plugin-wonderful") . '" />';
-        echo '<label>';
-          echo '<input type="checkbox" name="pw[center][' . $adboxid . ']" ' . (($box->center_widget == 1) ? "checked" : "") . ' /> ';
-          echo 'Wrap ad in &lt;center&gt; tags';
-        echo '</label>';
-        break;
-      }
-    }
+    if ($this->publisher_info !== false) {
+			foreach ($this->publisher_info->adboxes as $box) {
+				if ($box->adboxid == $adboxid) {
+					echo '<input type="hidden" name="pw[_nonce]" value="' . wp_create_nonce("plugin-wonderful") . '" />';
+					echo '<label>';
+						echo '<input type="checkbox" name="pw[center][' . $adboxid . ']" ' . (($box->center_widget == 1) ? "checked" : "") . ' /> ';
+						echo 'Wrap ad in &lt;center&gt; tags';
+					echo '</label>';
+					break;
+				}
+			}
+	  }
   }
 
   function handle_activation() {
