@@ -1,8 +1,8 @@
 <?php
 
-require_once('../classes/PublisherInfo.php');
+require_once(dirname(__FILE__) . '/../classes/PublisherInfo.php');
 
-class TestPublisherInfo extends PHPUnit_Framework_TestCase {
+class PublisherInfoTest extends PHPUnit_Framework_TestCase {
   private $parser, $default_data, $default_data_as_hash;
 
   public function setup() {

@@ -1,8 +1,8 @@
 <?php
 
-require_once('../classes/PWAdboxesClient.php');
+require_once(dirname(__FILE__) . '/../classes/PWAdboxesClient.php');
 
-class TestPWAdboxesClient extends PHPUnit_Framework_TestCase {
+class PWAdboxesClientTest extends PHPUnit_Framework_TestCase {
   private $database_client;
   private $sample_ad;
 
