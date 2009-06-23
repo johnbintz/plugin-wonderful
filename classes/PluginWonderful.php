@@ -174,17 +174,19 @@ class PluginWonderful {
 
   function handle_action_save_widgets() {
     $new_boxes = array();
-    foreach ($this->publisher_info->adboxes as $box) {
-      if (isset($_POST['pw']['center'][$box->adboxid])) {
-        $this->adboxes_client->set_widget_centering($box->adboxid, true);
-        $box->center_widget = "1";
-      } else {
-        $this->adboxes_client->set_widget_centering($box->adboxid, false);
-        $box->center_widget = "0";
-      }
-      $new_boxes[] = $box;
-    }
-    $this->publisher_info->adboxes = $new_boxes;
+    if ($this->publisher_info !== false) {
+			foreach ($this->publisher_info->adboxes as $box) {
+				if (isset($_POST['pw']['center'][$box->adboxid])) {
+					$this->adboxes_client->set_widget_centering($box->adboxid, true);
+					$box->center_widget = "1";
+				} else {
+					$this->adboxes_client->set_widget_centering($box->adboxid, false);
+					$box->center_widget = "0";
+				}
+				$new_boxes[] = $box;
+			}
+			$this->publisher_info->adboxes = $new_boxes;
+	  }
   }
 
   function handle_action_change_adbox_settings() {
