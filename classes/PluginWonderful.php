@@ -6,36 +6,38 @@ class PluginWonderful {
   function PluginWonderful() {}
 	
 	function init() {
-    $this->messages = array();
-    $this->adboxes_client = new PWAdboxesClient();
-    $this->publisher_info = false;
+	  if (empty($this->adboxes_client)) {
+			$this->messages = array();
+			$this->adboxes_client = new PWAdboxesClient();
+			$this->publisher_info = false;
 
-    if ($member_id = get_option('plugin-wonderful-memberid')) {
-      $this->publisher_info = $this->adboxes_client->get_ads($member_id);
+			if ($member_id = get_option('plugin-wonderful-memberid')) {
+				$this->publisher_info = $this->adboxes_client->get_ads($member_id);
 
-      if ((get_option('plugin-wonderful-last-update') + PLUGIN_WONDERFUL_UPDATE_TIME) < time()) {
-        if (($result = file_get_contents(sprintf(PLUGIN_WONDERFUL_XML_URL, (int)get_option('plugin-wonderful-memberid')))) !== false) {
-          $this->publisher_info = new PublisherInfo();
-          if ($this->publisher_info->parse($result)) {
-            $this->adboxes_client->post_ads($this->publisher_info);
-            update_option('plugin-wonderful-last-update', time());
-          }
-        }
-      }
-    }
+				if ((get_option('plugin-wonderful-last-update') + PLUGIN_WONDERFUL_UPDATE_TIME) < time()) {
+					if (($result = file_get_contents(sprintf(PLUGIN_WONDERFUL_XML_URL, (int)get_option('plugin-wonderful-memberid')))) !== false) {
+						$this->publisher_info = new PublisherInfo();
+						if ($this->publisher_info->parse($result)) {
+							$this->adboxes_client->post_ads($this->publisher_info);
+							update_option('plugin-wonderful-last-update', time());
+						}
+					}
+				}
+			}
 
-    $result = get_option('plugin-wonderful-database-version');
-    if (empty($result) || ($result < PLUGIN_WONDERFUL_DATABASE_VERSION)) {
-      if ($this->adboxes_client->initialize(true)) {
-        update_option('plugin-wonderful-database-version', PLUGIN_WONDERFUL_DATABASE_VERSION);
-      } else {
-        $this->messages[] = "Unable to update database schema!";
-      }
-    }
-		
-		$this->set_up_widgets();
+			$result = get_option('plugin-wonderful-database-version');
+			if (empty($result) || ($result < PLUGIN_WONDERFUL_DATABASE_VERSION)) {
+				if ($this->adboxes_client->initialize(true)) {
+					update_option('plugin-wonderful-database-version', PLUGIN_WONDERFUL_DATABASE_VERSION);
+				} else {
+					$this->messages[] = "Unable to update database schema!";
+				}
+			}
+			
+			$this->set_up_widgets();
 
-    if (!empty($_POST)) { $this->handle_action(); }	
+			if (!empty($_POST)) { $this->handle_action(); }	
+		}
 	}
 
   function insert_rss_feed_ads($content) {
@@ -118,6 +120,7 @@ class PluginWonderful {
   }
 
   function handle_activation() {
+		$this->init();
     $this->adboxes_client->initialize();
   }
 

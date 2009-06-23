@@ -39,6 +39,16 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
 		  $this->assertTrue(_xpath_test($xml, $xpath, $value), $xpath);
 		}
 	}
+	
+	function testHandleActivation() {
+		$pw = $this->getMock('PluginWonderful', array('init'));
+		$pw->adboxes_client = $this->getMock('PWAdboxesClient', array('initialize'));
+		
+		$pw->expects($this->once())->method("init");
+		$pw->adboxes_client->expects($this->once())->method('initialize');
+		
+		$pw->handle_activation();
+	}
 }
 
 ?>
