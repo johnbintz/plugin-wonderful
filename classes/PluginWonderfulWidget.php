@@ -40,7 +40,7 @@ class PluginWonderfulWidget extends WP_Widget {
     
     if ($plugin_wonderful->publisher_info !== false) {
       echo '<p>';
-        echo 'Select an adbox:';
+        echo 'Select an adbox:<br />';
         foreach ($plugin_wonderful->publisher_info->adboxes as $box) {
           echo '<label>';
             echo '<input type="radio" name="'
@@ -52,6 +52,7 @@ class PluginWonderfulWidget extends WP_Widget {
                  . ' />';
             echo $box->adtype . " " . $box->dimensions . " (" . $box->adboxid . ")";
           echo "</label>";
+          echo "<br />";
         }
       echo '</p>';
       
