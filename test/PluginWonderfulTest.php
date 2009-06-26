@@ -158,6 +158,22 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
 			}
 		}
 	}
+  
+  function testTemplateTag() {
+    global $plugin_wonderful;
+    
+    $plugin_wonderful = $this->getMock('PluginWonderful');
+  
+    $plugin_wonderful->publisher_info = (object)array(
+      'adboxes' => array(
+        (object)array('adboxid' => '123', 'advancedcode' => "test", 'standardcode' => "not-test")
+      )
+    );
+    
+    ob_start();
+    the_project_wonderful_ad('123');
+    $this->assertEquals("test", ob_get_clean());
+  }
 }
 
 ?>

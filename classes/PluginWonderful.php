@@ -1,5 +1,7 @@
 <?php
 
+require_once('PluginWonderfulWidget.php');
+
 class PluginWonderful {
   var $messages, $adboxes_client, $publisher_info, $member_id;
   var $widget_prefix = "plugin-wonderful";
@@ -294,9 +296,8 @@ class PluginWonderful {
 }
 
 function the_project_wonderful_ad($adboxid) {
-  global $plugin_wonderful;
-
-  $plugin_wonderful->render_widget(array(), $adboxid);
+  $w = new PluginWonderfulWidget();
+  $w->widget(array(), array('adboxid' => $adboxid));
 }
 
 ?>
