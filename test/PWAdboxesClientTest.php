@@ -14,7 +14,7 @@ class PWAdboxesClientTest extends PHPUnit_Framework_TestCase {
                                      'dimensions' => "1x1", 'rating' => "a", 'category' => "a",
                                      'description' => "a", 'tags' => 'a', 'standardcode' => 'a',
                                      'advancedcode' => 'a', 'adtype' => 'a', 'template_tag_id' => 'a',
-                                     'in_rss_feed' => 0, 'center_widget' => 0);
+                                     'in_rss_feed' => 0);
   }
 
   function testCreateTables() {
@@ -50,7 +50,7 @@ class PWAdboxesClientTest extends PHPUnit_Framework_TestCase {
 
     $ads->adboxes = array($this->sample_ad);
 
-    $wpdb->expects($this->exactly(14))->method('escape');
+    $wpdb->expects($this->exactly(13))->method('escape');
     $wpdb->expects($this->exactly(2))->method('query')->will($this->returnCallback(array($this, 'postAdsCallback')));
     $wpdb->expects($this->exactly(1))->method('get_results')->will($this->returnValue(array()))->with("SELECT adboxid, template_tag_id, in_rss_feed, center_widget FROM {$this->database_client->table_name}");
 
@@ -196,13 +196,13 @@ class PWAdboxesClientTest extends PHPUnit_Framework_TestCase {
                    'dimensions', 'rating', 'category',
                    'description', 'tags', 'standardcode',
                    'advancedcode', 'adtype', 'template_tag_id',
-                   'in_rss_feed', 'center_widget') as $field) {
+                   'in_rss_feed') as $field) {
       $large_sample_ad[$field] = $field . "-" . str_repeat("x", 300);
     }
 
     $ads->adboxes = array((object)$large_sample_ad);
 
-    $wpdb->expects($this->exactly(14))->method('escape')->will($this->returnCallback(array($this, 'postDataTooLargeCallback')));
+    $wpdb->expects($this->exactly(13))->method('escape')->will($this->returnCallback(array($this, 'postDataTooLargeCallback')));
     $wpdb->expects($this->exactly(2))->method('query');
     $wpdb->expects($this->exactly(1))->method('get_results');
 

@@ -2,7 +2,7 @@
 
 require_once('PublisherInfo.php');
 
-define("PLUGIN_WONDERFUL_DATABASE_VERSION", 4);
+define("PLUGIN_WONDERFUL_DATABASE_VERSION", 5);
 
 /**
  * The interface to the PW database table.
@@ -29,8 +29,7 @@ class PWAdboxesClient {
       array('standardcode', 'text', '', 'NOT NULL'),
       array('advancedcode', 'text', '', 'NOT NULL'),
       array('template_tag_id', 'char', '30', ''),
-      array('in_rss_feed', 'int', '1', ''),
-      array('center_widget', 'int', '1', '')
+      array('in_rss_feed', 'int', '1', '')
     );
   }
 
