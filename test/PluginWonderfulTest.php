@@ -5,6 +5,9 @@ require_once(dirname(__FILE__) . '/../classes/PluginWonderful.php');
 require_once(dirname(__FILE__) . '/../classes/PublisherInfo.php');
 require_once(dirname(__FILE__) . '/../../mockpress/mockpress.php');
 
+define("PLUGIN_WONDERFUL_DATABASE_VERSION", 5);
+define('PLUGIN_WONDERFUL_UPDATE_TIME', 60 * 60 * 12); // every 12 hours
+
 class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
   function setUp() {
 	  $this->pw = new PluginWonderful();
@@ -140,6 +143,41 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
 		if ($expected_result == "~*test-xml*~") { $expected_result = $test_xml_publisher_info; }
 		
 		$this->assertEquals($expected_result, $pw->_get_publisher_info());
+	}
+	
+	function providerTestUpdateDatabaseVersion() {
+	  return array(
+		  array(false, true, false),
+			array(false, true, true),
+			array(PLUGIN_WONDERFUL_DATABASE_VERSION - 1, true, false),
+			array(PLUGIN_WONDERFUL_DATABASE_VERSION - 1, true, true),
+			array(PLUGIN_WONDERFUL_DATABASE_VERSION, false, false),
+			array(PLUGIN_WONDERFUL_DATABASE_VERSION, false, true)
+		);
+	}
+	
+	/**
+	 * @dataProvider providerTestUpdateDatabaseVersion
+	 */
+	function testUpdateDatabaseVersion($option, $will_initialize, $initialize_results) {
+	  update_option('plugin-wonderful-database-version', $option);
+		
+		$this->pw->adboxes_client = $this->getMock('PWAdboxesClient', array('initialize'));
+		if ($will_initialize) {
+			$this->pw->adboxes_client->expects($this->once())->method('initialize')->will($this->returnValue($initialize_results));
+	  } else {
+			$this->pw->adboxes_client->expects($this->never())->method('initialize');
+		}
+		
+		$this->pw->_update_database_version();
+		
+		if ($will_initialize) {
+			if ($initialize_results) {
+				$this->assertEquals(PLUGIN_WONDERFUL_DATABASE_VERSION, get_option('plugin-wonderful-database-version'));
+			} else {
+				$this->assertEquals(1, count($this->pw->messages));
+			}
+		}
 	}
 }
 

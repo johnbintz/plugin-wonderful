@@ -16,15 +16,7 @@ class PluginWonderful {
 			$this->adboxes_client = new PWAdboxesClient();
 			
 			$this->_get_publisher_info();
-			
-			$result = get_option('plugin-wonderful-database-version');
-			if (empty($result) || ($result < PLUGIN_WONDERFUL_DATABASE_VERSION)) {
-				if ($this->adboxes_client->initialize(true)) {
-					update_option('plugin-wonderful-database-version', PLUGIN_WONDERFUL_DATABASE_VERSION);
-				} else {
-					$this->messages[] = "Unable to update database schema!";
-				}
-			}
+			$this->_update_database_version();
 			
 			$this->set_up_widgets();
 
@@ -34,6 +26,17 @@ class PluginWonderful {
 
 	function _get_new_publisher_info_object() {
 		return new PublisherInfo();
+	}
+
+	function _update_database_version() {
+		$result = get_option('plugin-wonderful-database-version');
+		if (empty($result) || ($result < PLUGIN_WONDERFUL_DATABASE_VERSION)) {
+			if ($this->adboxes_client->initialize(true)) {
+				update_option('plugin-wonderful-database-version', PLUGIN_WONDERFUL_DATABASE_VERSION);
+			} else {
+				$this->messages[] = "Unable to update database schema!";
+			}
+		}	
 	}
 
 	function _get_publisher_info() {
