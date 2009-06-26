@@ -2,29 +2,21 @@
 
 class PluginWonderful {
   var $messages, $adboxes_client, $publisher_info, $member_id;
+  var $widget_prefix = "plugin-wonderful";
 
   function PluginWonderful() {}
+	
+	function _retrieve_url($url) {
+		return @file_get_contents($url);
+	}
 	
 	function init() {
 	  if (empty($this->adboxes_client)) {
 			$this->messages = array();
 			$this->adboxes_client = new PWAdboxesClient();
-			$this->publisher_info = false;
-
-			if ($member_id = get_option('plugin-wonderful-memberid')) {
-				$this->publisher_info = $this->adboxes_client->get_ads($member_id);
-
-				if ((get_option('plugin-wonderful-last-update') + PLUGIN_WONDERFUL_UPDATE_TIME) < time()) {
-					if (($result = file_get_contents(sprintf(PLUGIN_WONDERFUL_XML_URL, (int)get_option('plugin-wonderful-memberid')))) !== false) {
-						$this->publisher_info = new PublisherInfo();
-						if ($this->publisher_info->parse($result)) {
-							$this->adboxes_client->post_ads($this->publisher_info);
-							update_option('plugin-wonderful-last-update', time());
-						}
-					}
-				}
-			}
-
+			
+			$this->_get_publisher_info();
+			
 			$result = get_option('plugin-wonderful-database-version');
 			if (empty($result) || ($result < PLUGIN_WONDERFUL_DATABASE_VERSION)) {
 				if ($this->adboxes_client->initialize(true)) {
@@ -38,6 +30,35 @@ class PluginWonderful {
 
 			if (!empty($_POST)) { $this->handle_action(); }	
 		}
+	}
+
+	function _get_new_publisher_info_object() {
+		return new PublisherInfo();
+	}
+
+	function _get_publisher_info() {
+		$this->publisher_info = false;
+		$member_id = get_option('plugin-wonderful-memberid');
+		if (is_numeric($member_id)) {
+			$member_id = (int)$member_id;
+			$this->publisher_info = $this->adboxes_client->get_ads($member_id);
+
+			$last_update = get_option('plugin-wonderful-last-update') ;
+			if (!is_numeric($last_update)) { $last_update = 0; }
+			$last_update = (int)$last_update;
+			
+			if (($last_update + PLUGIN_WONDERFUL_UPDATE_TIME) < time()) {
+				if (($result = $this->_retrieve_url(sprintf(PLUGIN_WONDERFUL_XML_URL, (int)get_option('plugin-wonderful-memberid')))) !== false) {
+					$this->publisher_info = $this->_get_new_publisher_info_object();
+					if ($this->publisher_info->parse($result)) {
+						$this->adboxes_client->post_ads($this->publisher_info);
+						update_option('plugin-wonderful-last-update', time());
+					}
+				}
+			}
+		}	
+		
+		return $this->publisher_info;
 	}
 
   function insert_rss_feed_ads($content) {
@@ -55,6 +76,15 @@ class PluginWonderful {
     return $content;
   }
 
+  function get_ad_widget_ordering($adbox_id) {
+		if (($result = get_option('plugin-wonderful-sidebar-adboxes')) !== false) {
+			foreach ($result as $position => $id) {
+			  if ($id == $adbox_id) { return $position; }
+		  }
+		}
+		return null;
+	}
+	
   function insert_activation_ad() {
     $result = get_option('plugin-wonderful-activate-ad-code');
     if (!empty($result)) { echo $result; }
@@ -90,18 +120,6 @@ class PluginWonderful {
 
   function set_up_menu() {
     add_options_page('Plugin Wonderful', __("Plugin Wonderful", 'plugin-wonderful'), 5, __FILE__, array($this, "plugin_wonderful_main"));
-  }
-
-  function set_up_widgets() {
-    if ($this->publisher_info !== false) {
-      if (($widgets = $this->publisher_info->get_sidebar_widget_info()) !== false) {
-        foreach ($widgets as $widget_info) {
-          extract($widget_info);
-          wp_register_sidebar_widget($id, $name, array($this, 'render_widget'), "", $options['adboxid']);
-          register_widget_control($id, array($this, 'render_widget_control'), null, null, $options['adboxid']);
-        }
-      }
-    }
   }
 
   function render_widget_control($adboxid) {
