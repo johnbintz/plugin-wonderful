@@ -2,8 +2,8 @@
 Contributors: johncoswell
 Tags: ads, sidebar, widget
 Requires at least: 2.7
-Tested up to: 2.7.1
-Stable tag: 0.4.4
+Tested up to: 2.8
+Stable tag: 0.5
 Donate link: http://www.coswellproductions.com/wordpress/wordpress-plugins/
 
 Plugin Wonderful lets Project Wonderful publishers quickly and easily add their adboxes to thier WordPress site.
@@ -17,6 +17,10 @@ Plugin Wonderful downloads your adbox information from Project Wonderful and cre
 Copy the plugin-wonderful folder to your wp-content/plugins folder and activate it from Plugins -> Installed. Activating the plugin creates a new database table, `{prefix}_pw_adboxes`, that you can safely remove if you are no longer using the plugin.
 
 == Frequently Asked Questions ==
+
+= Why don't my widgets work anymore?! =
+
+The widget API in 2.8 changed to something that is much easier to use when you want multiple widgets on a page. Using multiple widgets was broken in earlier versions of Plugin Wonderful, anyway. If you are using a pre-2.8 WordPress and want widgets in your sidebar, you can still use template tags to put them there.
 
 = Where do I get my member number? =
 
