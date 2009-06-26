@@ -7,62 +7,62 @@ class PluginWonderful {
   var $widget_prefix = "plugin-wonderful";
 
   function PluginWonderful() {}
-	
-	function _retrieve_url($url) {
-		return @file_get_contents($url);
-	}
-	
-	function init() {
-	  if (empty($this->adboxes_client)) {
-			$this->messages = array();
-			$this->adboxes_client = new PWAdboxesClient();
-			
-			$this->_get_publisher_info();
-			$this->_update_database_version();
-			
-			if (!empty($_POST)) { $this->handle_action(); }	
-		}
-	}
+  
+  function _retrieve_url($url) {
+    return @file_get_contents($url);
+  }
+  
+  function init() {
+    if (empty($this->adboxes_client)) {
+      $this->messages = array();
+      $this->adboxes_client = new PWAdboxesClient();
+      
+      $this->_get_publisher_info();
+      $this->_update_database_version();
+      
+      if (!empty($_POST)) { $this->handle_action(); }	
+    }
+  }
 
-	function _get_new_publisher_info_object() {
-		return new PublisherInfo();
-	}
+  function _get_new_publisher_info_object() {
+    return new PublisherInfo();
+  }
 
-	function _update_database_version() {
-		$result = get_option('plugin-wonderful-database-version');
-		if (empty($result) || ($result < PLUGIN_WONDERFUL_DATABASE_VERSION)) {
-			if ($this->adboxes_client->initialize(true)) {
-				update_option('plugin-wonderful-database-version', PLUGIN_WONDERFUL_DATABASE_VERSION);
-			} else {
-				$this->messages[] = "Unable to update database schema!";
-			}
-		}	
-	}
+  function _update_database_version() {
+    $result = get_option('plugin-wonderful-database-version');
+    if (empty($result) || ($result < PLUGIN_WONDERFUL_DATABASE_VERSION)) {
+      if ($this->adboxes_client->initialize(true)) {
+        update_option('plugin-wonderful-database-version', PLUGIN_WONDERFUL_DATABASE_VERSION);
+      } else {
+        $this->messages[] = "Unable to update database schema!";
+      }
+    }	
+  }
 
-	function _get_publisher_info() {
-		$this->publisher_info = false;
-		$member_id = get_option('plugin-wonderful-memberid');
-		if (is_numeric($member_id)) {
-			$member_id = (int)$member_id;
-			$this->publisher_info = $this->adboxes_client->get_ads($member_id);
+  function _get_publisher_info() {
+    $this->publisher_info = false;
+    $member_id = get_option('plugin-wonderful-memberid');
+    if (is_numeric($member_id)) {
+      $member_id = (int)$member_id;
+      $this->publisher_info = $this->adboxes_client->get_ads($member_id);
 
-			$last_update = get_option('plugin-wonderful-last-update') ;
-			if (!is_numeric($last_update)) { $last_update = 0; }
-			$last_update = (int)$last_update;
-			
-			if (($last_update + PLUGIN_WONDERFUL_UPDATE_TIME) < time()) {
-				if (($result = $this->_retrieve_url(sprintf(PLUGIN_WONDERFUL_XML_URL, (int)get_option('plugin-wonderful-memberid')))) !== false) {
-					$this->publisher_info = $this->_get_new_publisher_info_object();
-					if ($this->publisher_info->parse($result)) {
-						$this->adboxes_client->post_ads($this->publisher_info);
-						update_option('plugin-wonderful-last-update', time());
-					}
-				}
-			}
-		}	
-		
-		return $this->publisher_info;
-	}
+      $last_update = get_option('plugin-wonderful-last-update') ;
+      if (!is_numeric($last_update)) { $last_update = 0; }
+      $last_update = (int)$last_update;
+      
+      if (($last_update + PLUGIN_WONDERFUL_UPDATE_TIME) < time()) {
+        if (($result = $this->_retrieve_url(sprintf(PLUGIN_WONDERFUL_XML_URL, (int)get_option('plugin-wonderful-memberid')))) !== false) {
+          $this->publisher_info = $this->_get_new_publisher_info_object();
+          if ($this->publisher_info->parse($result)) {
+            $this->adboxes_client->post_ads($this->publisher_info);
+            update_option('plugin-wonderful-last-update', time());
+          }
+        }
+      }
+    }	
+    
+    return $this->publisher_info;
+  }
 
   function insert_rss_feed_ads($content) {
     if (is_feed()) {
@@ -80,14 +80,14 @@ class PluginWonderful {
   }
 
   function get_ad_widget_ordering($adbox_id) {
-		if (($result = get_option('plugin-wonderful-sidebar-adboxes')) !== false) {
-			foreach ($result as $position => $id) {
-			  if ($id == $adbox_id) { return $position; }
-		  }
-		}
-		return null;
-	}
-	
+    if (($result = get_option('plugin-wonderful-sidebar-adboxes')) !== false) {
+      foreach ($result as $position => $id) {
+        if ($id == $adbox_id) { return $position; }
+      }
+    }
+    return null;
+  }
+  
   function insert_activation_ad() {
     $result = get_option('plugin-wonderful-activate-ad-code');
     if (!empty($result)) { echo $result; }
@@ -107,7 +107,7 @@ class PluginWonderful {
   }
 
   function handle_activation() {
-		$this->init();
+    $this->init();
     $this->adboxes_client->initialize();
   }
 
@@ -157,26 +157,26 @@ class PluginWonderful {
     if (method_exists($this, $action)) { call_user_func(array($this, $action)); }
 
     // handle widget updates
-		if (isset($_POST['pw']['_nonce'])) {
-			if (wp_verify_nonce($_POST['pw']['_nonce'], "plugin-wonderful")) { $this->handle_action_save_widgets(); }
-	  }
+    if (isset($_POST['pw']['_nonce'])) {
+      if (wp_verify_nonce($_POST['pw']['_nonce'], "plugin-wonderful")) { $this->handle_action_save_widgets(); }
+    }
   }
 
   function handle_action_save_widgets() {
     $new_boxes = array();
     if ($this->publisher_info !== false) {
-			foreach ($this->publisher_info->adboxes as $box) {
-				if (isset($_POST['pw']['center'][$box->adboxid])) {
-					$this->adboxes_client->set_widget_centering($box->adboxid, true);
-					$box->center_widget = "1";
-				} else {
-					$this->adboxes_client->set_widget_centering($box->adboxid, false);
-					$box->center_widget = "0";
-				}
-				$new_boxes[] = $box;
-			}
-			$this->publisher_info->adboxes = $new_boxes;
-	  }
+      foreach ($this->publisher_info->adboxes as $box) {
+        if (isset($_POST['pw']['center'][$box->adboxid])) {
+          $this->adboxes_client->set_widget_centering($box->adboxid, true);
+          $box->center_widget = "1";
+        } else {
+          $this->adboxes_client->set_widget_centering($box->adboxid, false);
+          $box->center_widget = "0";
+        }
+        $new_boxes[] = $box;
+      }
+      $this->publisher_info->adboxes = $new_boxes;
+    }
   }
 
   function handle_action_change_adbox_settings() {

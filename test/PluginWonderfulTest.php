@@ -23,7 +23,7 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
 		$pw->expects($this->once())->method("handle_action_save_widgets");
 		$pw->handle_action();
 	}
-	
+  
 	function testHandleActivation() {
 		$pw = $this->getMock('PluginWonderful', array('init'));
 		$pw->adboxes_client = $this->getMock('PWAdboxesClient', array('initialize'));
