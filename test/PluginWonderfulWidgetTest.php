@@ -69,7 +69,7 @@ class PluginWonderfulWidgetTest extends PHPUnit_Framework_TestCase {
     );
     
     ob_start();
-    $this->w->form(array('adboxid' => '123', 'center' => 0));
+    $this->w->form(array('adboxid' => '123', 'center' => 1));
     $source = ob_get_clean();
     
     $this->assertTrue(($xml = _to_xml($source)) !== false);
@@ -78,11 +78,15 @@ class PluginWonderfulWidgetTest extends PHPUnit_Framework_TestCase {
       '//input[@type="radio" and @name="' . $this->w->get_field_name('adboxid') . '" and @value="123" and @checked="checked"]' => true,
       '//input[@type="radio" and @name="' . $this->w->get_field_name('adboxid') . '" and @value="234" and not(@checked="checked")]' => true,
       '//input[@type="radio" and @name="' . $this->w->get_field_name('adboxid') . '" and @value="345" and not(@checked="checked")]' => true,
-      '//input[@type="checkbox" and @name="' . $this->w->get_field_name('center') . '" and @value="1" and not(@checked="checked")]' => true
+      '//input[@type="checkbox" and @name="' . $this->w->get_field_name('center') . '" and @value="1" and @checked="checked"]' => true
     ) as $xpath => $value) {
       $this->assertTrue(_xpath_test($xml, $xpath, $value), $xpath);
     }
-  }  
+  }
+  
+  function testUpdateWidget() {
+    $this->assertEquals(array('adboxid' => 5, 'center' => 0), $this->w->update(array('adboxid' => 5), array('adboxid' => 4, 'center' => 1)));
+  }
 }
 
 ?>

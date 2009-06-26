@@ -63,6 +63,12 @@ class PluginWonderfulWidget extends WP_Widget {
       echo '</p>';
     }
   }
+  
+  function update($new_instance, $old_instance) {
+    $instance = $new_instance;
+    if (!isset($instance['center'])) { $instance['center'] = 0; }
+    return $instance;
+  }
 }
 
 ?>
