@@ -57,3 +57,7 @@ Plugin Wonderful checks your Project Wonderful account every 12 hours for adbox 
 Wrap the call to `the_project_wonderful_ad()` in a `function_exists()` call:
 
 `<?php if (function_exists('the_project_wonderful_ad')) { the_project_wonderful_ad('header'); } ?>`
+
+= How do I run the unit tests? =
+
+You'll need [PHPUnit](http://www.phpunit.de/) and [MockPress](http://github.com/johnbintz/mockpress/tree/master).
