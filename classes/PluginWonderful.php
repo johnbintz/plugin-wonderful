@@ -18,8 +18,6 @@ class PluginWonderful {
 			$this->_get_publisher_info();
 			$this->_update_database_version();
 			
-			$this->set_up_widgets();
-
 			if (!empty($_POST)) { $this->handle_action(); }	
 		}
 	}
@@ -93,25 +91,6 @@ class PluginWonderful {
     if (!empty($result)) { echo $result; }
   }
 
-  function render_widget($adboxid) {
-    if ($this->publisher_info !== false) {
-      foreach ($this->publisher_info->adboxes as $adbox) {
-        if (($adbox->adboxid == $adboxid) || ($adbox->template_tag_id == $adboxid)) {
-          if (get_option("plugin-wonderful-use-standardcode") == 1) {
-            $output = $adbox->standardcode;
-          } else {
-            $output = $adbox->advancedcode;
-          }
-          if ($adbox->center_widget == 1) {
-            $output = "<center>{$output}</center>";
-          }
-          echo $output;
-          break;
-        }
-      }
-    }
-  }
-  
   function inject_ads_into_body_copy($body) {
     if ($this->publisher_info !== false) {
       if (get_option("plugin-wonderful-enable-body-copy-embedding") == 1) {
@@ -123,21 +102,6 @@ class PluginWonderful {
 
   function set_up_menu() {
     add_options_page('Plugin Wonderful', __("Plugin Wonderful", 'plugin-wonderful'), 5, __FILE__, array($this, "plugin_wonderful_main"));
-  }
-
-  function render_widget_control($adboxid) {
-    if ($this->publisher_info !== false) {
-			foreach ($this->publisher_info->adboxes as $box) {
-				if ($box->adboxid == $adboxid) {
-					echo '<input type="hidden" name="pw[_nonce]" value="' . wp_create_nonce("plugin-wonderful") . '" />';
-					echo '<label>';
-						echo '<input type="checkbox" name="pw[center][' . $adboxid . ']" ' . (($box->center_widget == 1) ? "checked" : "") . ' /> ';
-						echo 'Wrap ad in &lt;center&gt; tags';
-					echo '</label>';
-					break;
-				}
-			}
-	  }
   }
 
   function handle_activation() {

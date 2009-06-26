@@ -24,27 +24,6 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
 		$pw->handle_action();
 	}
 	
-	function testRenderWidgetControl() {
-		_set_valid_nonce("plugin-wonderful", "12345");
-
-		$this->pw->publisher_info->adboxes = array(
-		  (object)array('adboxid' => '123',
-			              'center_widget' => 0)
-		);
-		
-		ob_start();
-		$this->pw->render_widget_control('123');
-		$source = ob_get_clean();
-		
-		$this->assertTrue(($xml = _to_xml($source)) !== false);
-		
-		foreach (array(
-		  '//input[@name="pw[_nonce]" and @value="12345"]' => true
-		) as $xpath => $value) {
-		  $this->assertTrue(_xpath_test($xml, $xpath, $value), $xpath);
-		}
-	}
-	
 	function testHandleActivation() {
 		$pw = $this->getMock('PluginWonderful', array('init'));
 		$pw->adboxes_client = $this->getMock('PWAdboxesClient', array('initialize'));
@@ -178,44 +157,6 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
 				$this->assertEquals(1, count($this->pw->messages));
 			}
 		}
-	}
-	
-	function providerTestRenderWidget() {
-	  return array(
-		  array(false, null, null, null, ""),
-			array(true, null, null, null, ""),
-			array(true, "123", 0, null, "advanced"),
-			array(true, "123", 1, null, "standard"),
-			array(true, "abc", 1, null, "standard"),
-			array(true, "abc", 1, 1, "<center>standard</center>")
-		);
-	}
-	
-	/**
-	 * @dataProvider providerTestRenderWidget
-	 */
-	function testRenderWidget($has_publisher_info, $requested_adboxid, $use_standardcode, $center_widget, $expected_result) {
-	  $test_ad = (object)array(
-		  'adboxid' => '123',
-			'template_tag_id' => 'abc',
-			'standardcode' => 'standard',
-			'advancedcode' => 'advanced',
-			'center_widget' => $center_widget
-		);
-		
-		if ($has_publisher_info) {
-		  $this->pw->publisher_info = (object)array(
-			  'adboxes' => array($test_ad)
-			);
-			
-			update_option("plugin-wonderful-use-standardcode", $use_standardcode);
-		} else {
-		  $this->pw->publisher_info = false;
-		}
-		
-		ob_start();
-		$this->pw->render_widget($requested_adboxid);
-		$this->assertEquals($expected_result, ob_get_clean());
 	}
 }
 

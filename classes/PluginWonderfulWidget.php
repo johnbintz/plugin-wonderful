@@ -16,9 +16,53 @@ class PluginWonderfulWidget extends WP_Widget {
 	
 	function widget($args, $instance) {
 	  global $plugin_wonderful;
-		
-		$plugin_wonderful->render_widget($instance['adboxid']);
+
+    if ($plugin_wonderful->publisher_info !== false) {
+      foreach ($plugin_wonderful->publisher_info->adboxes as $adbox) {
+        if (($adbox->adboxid == $instance['adboxid']) || ($adbox->template_tag_id == $instance['adboxid'])) {
+          if (get_option("plugin-wonderful-use-standardcode") == 1) {
+            $output = $adbox->standardcode;
+          } else {
+            $output = $adbox->advancedcode;
+          }
+          if ($instance['center'] == 1) {
+            $output = "<center>{$output}</center>";
+          }
+          echo $output;
+          break;
+        }
+      }
+    }
 	}
+  
+  function form($instance) {
+    global $plugin_wonderful;
+    
+    if ($plugin_wonderful->publisher_info !== false) {
+      echo '<p>';
+        echo 'Select an adbox:';
+        foreach ($plugin_wonderful->publisher_info->adboxes as $box) {
+          echo '<label>';
+            echo '<input type="radio" name="'
+                 . $this->get_field_name('adboxid')
+                 . '" value="'
+                 . $box->adboxid
+                 . '" '
+                 . (($instance['adboxid'] == $box->adboxid) ? 'checked="checked"' : "")
+                 . ' />';
+            echo $box->adtype . " " . $box->dimensions . " (" . $box->adboxid . ")";
+          echo "</label>";
+        }
+      echo '</p>';
+      
+      echo '<p>';
+        echo '<label>';
+          echo '<input type="checkbox" value="1" name="' . $this->get_field_name('center') . '" ' . (($instance['center'] == 1) ? 'checked="checked"' : "") . ' /> ';
+          echo 'Wrap ad in &lt;center&gt; tags';
+        echo '</label>';
+      echo '</p>';
+    }
+  }
 }
 
 ?>
