@@ -3,7 +3,7 @@
 Plugin Name: Plugin Wonderful
 Plugin URI: http://www.coswellproductions.com/wordpress/wordpress-plugins/
 Description: Easily embed a Project Wonderful publisher's advertisements.
-Version: 0.4.4
+Version: 0.5
 Author: John Bintz
 Author URI: http://www.coswellproductions.org/wordpress/
 
@@ -33,10 +33,15 @@ define('PLUGIN_WONDERFUL_UPDATE_TIME', 60 * 60 * 12); // every 12 hours
 
 $plugin_wonderful = new PluginWonderful();
 
+function __plugin_wonderful_load_widgets() {
+  register_widget('PluginWonderfulWidget');
+}
+
 add_action('admin_menu', array($plugin_wonderful, 'set_up_menu'));
 add_action('init', array($plugin_wonderful, 'init'));
 add_filter('the_excerpt_rss', array($plugin_wonderful, 'insert_rss_feed_ads'));
 add_filter('the_content', array($plugin_wonderful, 'inject_ads_into_body_copy'));
+add_action('widgets_init', '__plugin_wonderful_load_widgets');
 
 register_activation_hook(__FILE__, array($plugin_wonderful, 'handle_activation'));
 
