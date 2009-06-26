@@ -93,7 +93,7 @@ class PluginWonderful {
     if (!empty($result)) { echo $result; }
   }
 
-  function render_widget($options, $adboxid) {
+  function render_widget($adboxid) {
     if ($this->publisher_info !== false) {
       foreach ($this->publisher_info->adboxes as $adbox) {
         if (($adbox->adboxid == $adboxid) || ($adbox->template_tag_id == $adboxid)) {

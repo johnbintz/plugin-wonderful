@@ -15,9 +15,9 @@ class PluginWonderfulWidget extends WP_Widget {
 	}
 	
 	function widget($args, $instance) {
-		extract($args);
+	  global $plugin_wonderful;
 		
-		
+		$plugin_wonderful->render_widget($instance['adboxid']);
 	}
 }
 
