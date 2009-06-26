@@ -99,7 +99,7 @@
 <?php if ($this->publisher_info !== false) { ?>
   <h3><?php _e('Using Widgets to Put Ads on Your Site', 'plugin-wonderful') ?></h3>
   <p>
-    <?php _e('Visit <a href="widgets.php">Appearance -> Widgets</a> to quickly add Project Wonderful advertisements to your site. Plugin Wonderful widgets start with &quot;PW&quot;.', 'plugin-wonderful') ?>
+    <?php _e('Visit <a href="widgets.php">Appearance -> Widgets</a> to quickly add Project Wonderful advertisements to your site. Widgets only work in WordPress 2.8 and above.', 'plugin-wonderful') ?>
   </p>
 
   <h3><?php _e('Using the Template Tags in Your Theme', 'plugin-wonderful') ?></h3>
