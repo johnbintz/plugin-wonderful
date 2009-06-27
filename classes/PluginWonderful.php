@@ -95,15 +95,6 @@ class PluginWonderful {
     return $content;
   }
 
-  function get_ad_widget_ordering($adbox_id) {
-    if (($result = get_option('plugin-wonderful-sidebar-adboxes')) !== false) {
-      foreach ($result as $position => $id) {
-        if ($id == $adbox_id) { return $position; }
-      }
-    }
-    return null;
-  }
-  
   function insert_activation_ad() {
     $result = get_option('plugin-wonderful-activate-ad-code');
     if (!empty($result)) { echo $result; }
