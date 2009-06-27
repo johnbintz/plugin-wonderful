@@ -96,6 +96,11 @@ class PluginWonderful {
   }
 
 
+  /**
+   * Inject ads into the body copy of posts.
+   * @param string $body The body to search for PW() tags.
+   * @return string The modified body.
+   */
   function inject_ads_into_body_copy($body) {
     if ($this->publisher_info !== false) {
       if (get_option("plugin-wonderful-enable-body-copy-embedding") == 1) {
