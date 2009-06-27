@@ -183,8 +183,35 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
     $this->markTestIncomplete();
   }
   
-  function testInjectAdsIntoBodyCopy() {
-    $this->markTestIncomplete();
+  function providerTestInjectAdsIntoBodyCopy() {
+    return array(
+      array(false, null),
+      array(true, 0),
+      array(true, 1),
+    );
+  }
+  
+  /**
+   * @dataProvider providerTestInjectAdsIntoBodyCopy
+   */
+  function testInjectAdsIntoBodyCopy($has_publisher_info, $enable_embedding) {
+    $expected_body = "body";
+    
+    if ($has_publisher_info) {
+      $this->pw->publisher_info = $this->getMock('PublisherInfo', array('inject_ads_into_body_copy'));
+      update_option("plugin-wonderful-enable-body-copy-embedding", $enable_embedding);
+      
+      if ($enable_embedding == 1) {
+        $expected_body = "called";
+        $this->pw->publisher_info->expects($this->once())->method('inject_ads_into_body_copy')->will($this->returnValue($expected_body));
+	    } else {
+	      $this->pw->publisher_info->expects($this->never())->method('inject_ads_into_body_copy');
+	    }
+    } else {
+      $this->pw->publisher_info = false;
+    }
+    
+    $this->assertEquals($expected_body, $this->pw->inject_ads_into_body_copy("body"));
   }
   
   function testCreateTarget() {
