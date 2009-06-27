@@ -8,10 +8,16 @@ class PluginWonderful {
 
   function PluginWonderful() {}
   
+  /**
+   * Wrapper around file_get_contents for testing purposes.
+   */
   function _retrieve_url($url) {
     return @file_get_contents($url);
   }
   
+  /**
+   * Initialize the object if it isn't already.
+   */
   function init() {
     if (empty($this->adboxes_client)) {
       $this->messages = array();
@@ -24,10 +30,16 @@ class PluginWonderful {
     }
   }
 
+  /**
+   * Wrapper around PublisherInfo generation for testing.
+   */
   function _get_new_publisher_info_object() {
     return new PublisherInfo();
   }
 
+  /**
+   * Check to see if the database schema needs to be updated.
+   */
   function _update_database_version() {
     $result = get_option('plugin-wonderful-database-version');
     if (empty($result) || ($result < PLUGIN_WONDERFUL_DATABASE_VERSION)) {
@@ -39,6 +51,10 @@ class PluginWonderful {
     }	
   }
 
+  /**
+   * Get publisher info (adboxes) from cache or from Project Wonderful.
+   * @return PublisherInfo|boolean The PublisherInfo object with adbox information, or false if there was a problem.
+   */
   function _get_publisher_info() {
     $this->publisher_info = false;
     $member_id = get_option('plugin-wonderful-memberid');
