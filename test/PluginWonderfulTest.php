@@ -1,9 +1,9 @@
 <?php
 
 require_once('PHPUnit/Framework.php');
+require_once(dirname(__FILE__) . '/../../mockpress/mockpress.php');
 require_once(dirname(__FILE__) . '/../classes/PluginWonderful.php');
 require_once(dirname(__FILE__) . '/../classes/PublisherInfo.php');
-require_once(dirname(__FILE__) . '/../../mockpress/mockpress.php');
 
 define("PLUGIN_WONDERFUL_DATABASE_VERSION", 5);
 define('PLUGIN_WONDERFUL_UPDATE_TIME', 60 * 60 * 12); // every 12 hours
@@ -173,6 +173,46 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
     ob_start();
     the_project_wonderful_ad('123');
     $this->assertEquals("test", ob_get_clean());
+  }
+
+  function testInsertAdsIntoRSS() {
+    $this->markTestIncomplete();
+  }
+  
+  function testInsertActivationAd() {
+    $this->markTestIncomplete();
+  }
+  
+  function testInjectAdsIntoBodyCopy() {
+    $this->markTestIncomplete();
+  }
+  
+  function testCreateTarget() {
+    $this->markTestIncomplete();
+  }
+  
+  function testGetView() {
+    $this->markTestIncomplete();
+  }
+  
+  function testHandleAction() {
+    $this->markTestIncomplete();
+  }
+  
+  function testHandleActionSaveWidgets() {
+    $this->markTestIncomplete();
+  }
+  
+  function testHandleActionChangeAdboxSettings() {
+    $this->markTestIncomplete();
+  }
+  
+  function testHandleActionRebuildDatabase() {
+    $this->markTestIncomplete();
+  }
+  
+  function testHandleActionChangeMemberID() {
+    $this->markTestIncomplete();
   }
 }
 

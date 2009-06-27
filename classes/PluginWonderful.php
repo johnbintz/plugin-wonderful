@@ -95,6 +95,7 @@ class PluginWonderful {
     return $content;
   }
 
+  // is this still necessary?
   function insert_activation_ad() {
     $result = get_option('plugin-wonderful-activate-ad-code');
     if (!empty($result)) { echo $result; }
