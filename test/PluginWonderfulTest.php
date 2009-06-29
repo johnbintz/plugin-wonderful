@@ -240,11 +240,6 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected_body, $this->pw->inject_ads_into_body_copy("body"));
   }
   
-  function testCreateTarget() {
-    
-    $this->markTestIncomplete();
-  }
-  
   function testGetView() {
     $this->markTestIncomplete();
   }
