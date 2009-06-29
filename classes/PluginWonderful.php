@@ -173,59 +173,65 @@ class PluginWonderful {
   }
 
   function handle_action_change_adbox_settings() {
-    if ($member_id = get_option('plugin-wonderful-memberid')) {
-      if (isset($_POST['template_tag_id']) && is_array($_POST['template_tag_id'])) {
-        if (is_array($this->publisher_info->adboxes)) {
-          $new_boxes = array();
-          foreach ($this->publisher_info->adboxes as $box) {
-            if (isset($_POST['template_tag_id'][$box->adboxid])) {
-              $tag = $_POST['template_tag_id'][$box->adboxid];
-              $prior_value = $box->template_tag_id;
-
-              $tag = $this->adboxes_client->trim_field('template_tag_id', $tag);
-
-              $this->adboxes_client->set_template_tag($box->adboxid, $tag);
-              $box->template_tag_id = $tag;
-
-              if (!empty($tag) && ($prior_value != $tag)) {
-                $this->messages[] = sprintf(__('Template tag identifier for ad <strong>%1$s</strong> set to <strong>%2$s</strong>.', 'plugin-wonderful'), $box->adboxid, $tag);
-              } else {
-                if (!empty($prior_value) && empty($tag)) {
-                  $this->messages[] = sprintf(__('Template tag identifier for ad <strong>%s</strong> removed.', 'plugin-wonderful'), $box->adboxid);
-                }
-              }
-            }
-            $new_boxes[] = $box;
-          }
-          $this->publisher_info->adboxes = $new_boxes;
-        }
-      }
-
+    $member_id = get_option('plugin-wonderful-memberid');
+    if (is_numeric($member_id)) {
+      $changes = array(
+        'template_tag_id' => array(),
+        'in_rss_feed' => array()
+      );
+    
       if (is_array($this->publisher_info->adboxes)) {
         $new_boxes = array();
         foreach ($this->publisher_info->adboxes as $box) {
-          if (isset($_POST['in_rss_feed'][$box->adboxid])) {
+          if (isset($_POST['template_tag_id'][$box->adboxid])) {
+            $tag = $_POST['template_tag_id'][$box->adboxid];
+            $prior_value = $box->template_tag_id;
+
+            $tag = $this->adboxes_client->trim_field('template_tag_id', $tag);
+
+            $this->adboxes_client->set_template_tag($box->adboxid, $tag);
+            $box->template_tag_id = $tag;
+
+            if (!empty($tag) && ($prior_value != $tag)) {
+              $this->messages[] = sprintf(__('Template tag identifier for ad <strong>%1$s</strong> set to <strong>%2$s</strong>.', 'plugin-wonderful'), $box->adboxid, $tag);
+              $changes['template_tag_id'][$box->adboxid] = "set";
+            } else {
+              if (!empty($prior_value) && empty($tag)) {
+                $this->messages[] = sprintf(__('Template tag identifier for ad <strong>%s</strong> removed.', 'plugin-wonderful'), $box->adboxid);
+                $changes['template_tag_id'][$box->adboxid] = "removed";
+              }
+            }
+          }
+          
+          if (!empty($_POST['in_rss_feed'][$box->adboxid])) {
             $this->adboxes_client->set_rss_feed_usage($box->adboxid, true);
             if ($box->in_rss_feed == 0) {
               $this->messages[] = sprintf(__('RSS feed usage for ad <strong>%1$s</strong> enabled.', 'plugin-wonderful'), $box->adboxid);
+              $changes['in_rss_feed'][$box->adboxid] = "enabled";
             }
             $box->in_rss_feed = "1";
           } else {
             $this->adboxes_client->set_rss_feed_usage($box->adboxid, false);
             if ($box->in_rss_feed == 1) {
               $this->messages[] = sprintf(__('RSS feed usage for ad <strong>%1$s</strong> disabled.', 'plugin-wonderful'), $box->adboxid);
+              $changes['in_rss_feed'][$box->adboxid] = "disabled";
             }
             $box->in_rss_feed = "0";
           }
+          
           $new_boxes[] = $box;
         }
+        
         $this->publisher_info->adboxes = $new_boxes;
       }
+    } else {
+      return null;    
     }
 
     if (count($this->messages) == 0) {
       $this->messages[] = __("No changes to adboxes were made.", 'plugin-wonderful');
     }
+    return $changes;
   }
 
   function handle_action_rebuild_database() {

@@ -293,8 +293,100 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
      $pw->handle_action();
   }
   
-  function testHandleActionChangeAdboxSettings() {
-    $this->markTestIncomplete();
+  function providerTestHandleActionChangeAdboxSettings() {
+    return array(
+      array(false),
+      array(true),
+    );
+  }
+  
+  /**
+   * @dataProvider providerTestHandleActionChangeAdboxSettings
+   */
+  function testHandleActionChangeAdboxSettings($member_id_valid) {
+    $pw = new PluginWonderful();
+    
+    if ($member_id_valid) {
+      update_option('plugin-wonderful-memberid', '1');    
+    }
+    
+    if ($member_id_valid) {
+      foreach (array(false, true) as $had_template_tag_id) {
+        foreach (array("null", "no", "yes", "remove") as $new_template_tag_id) {
+          foreach (array(false, true) as $was_in_rss_feed) {
+            foreach (array("null", "no", "yes") as $now_in_rss_feed) {
+              $pw->publisher_info = (object)array(
+                'adboxes' => array(
+                  (object)array(
+                    'adboxid' => '123',
+                    'template_tag_id' => ($had_template_tag_id ? "test" : ""),
+                    'in_rss_feed' => ($was_in_rss_feed ? "1" : "0")
+                  )
+                )
+              );
+              
+              $pw->adboxes_client = $this->getMock('PWAdboxesClient', array('trim_field', 'set_template_tag', 'set_rss_feed_usage'));
+
+              $_POST['template_tag_id'] = array();
+
+              switch ($new_template_tag_id) {
+                case "no": $_POST['template_tag_id']['123'] = "test"; break;
+                case "yes": $_POST['template_tag_id']['123'] = "test2"; break;
+                case "remove": $_POST['template_tag_id']['123'] = ""; break;
+              }
+              
+              if ($new_template_tag_id !== "null") {
+                $pw->adboxes_client->expects($this->once())->method('trim_field')->with('template_tag_id', $_POST['template_tag_id']['123'])->will($this->returnValue($_POST['template_tag_id']['123']));
+                $pw->adboxes_client->expects($this->once())->method('set_template_tag')->with('123', $_POST['template_tag_id']['123']);
+              }
+              
+              $_POST['in_rss_feed'] = array();
+              
+              switch ($now_in_rss_feed) {
+                case "no": unset($_POST['in_rss_feed']['123']); break;
+                case "yes": $_POST['in_rss_feed']['123'] = "1"; break;
+              }
+              
+              $result = $pw->handle_action_change_adbox_settings();
+              
+              if (isset($_POST['template_tag_id']['123'])) {
+                $this->assertEquals($_POST['template_tag_id']['123'], $pw->publisher_info->adboxes[0]->template_tag_id);
+              }
+
+              if (isset($_POST['in_rss_feed']['123'])) {
+                $this->assertEquals($_POST['in_rss_feed']['123'], $pw->publisher_info->adboxes[0]->in_rss_feed);
+              }
+
+              switch ($new_template_tag_id) {
+                case "yes":
+                  $this->assertEquals("set", $result['template_tag_id']['123']);
+                  break;
+                case "remove":
+                  if ($had_template_tag_id) {
+                    $this->assertEquals("removed", $result['template_tag_id']['123']);
+                  }
+                  break;
+              }
+
+              switch ($now_in_rss_feed) {
+                case "no":
+                  if ($was_in_rss_feed) {
+                    $this->assertEquals("disabled", $result['in_rss_feed']['123']);
+                  }
+                  break;
+                case "yes":
+                  if (!$was_in_rss_feed) {                    
+                    $this->assertEquals("enabled", $result['in_rss_feed']['123']);
+                  }
+                  break;
+              }
+            }
+          }
+        }
+      }
+    } else {
+      $this->assertTrue(is_null($result));
+    }
   }
   
   function testHandleActionRebuildDatabase() {
