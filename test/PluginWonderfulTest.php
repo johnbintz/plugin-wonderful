@@ -240,8 +240,39 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected_body, $this->pw->inject_ads_into_body_copy("body"));
   }
   
-  function testGetView() {
-    $this->markTestIncomplete();
+  function providerTestGetView() {
+    return array(
+      array("**bad**", false),
+      array("**good**", true),
+    );
+  }
+  
+  /**
+   * @dataProvider providerTestGetView
+   */
+  function testGetView($function_extension, $file_exists) {
+    global $wp_test_expectations;
+    $wp_test_expectations['plugin_data'][realpath(dirname(__FILE__) . '/../classes/PluginWonderful.php')] = array(
+      'Title' => '**title**',
+      'Version' => '**version**',
+      'Author' => '**author**'
+    );
+  
+    $pw = $this->getMock('PluginWonderful', array('_create_target', '_include', '_file_exists'));
+
+    $pw->expects($this->once())->method("_file_exists")->will($this->returnValue($file_exists));
+
+    ob_start();
+    $pw->get_view("plugin_wonderful_" . $function_extension);
+    $source = ob_get_clean();
+    
+    $this->assertEquals($file_exists, strpos($source, $function_extension) === false);
+    
+    if ($file_exists) {
+      foreach (array("title", "version", "author") as $name) {
+        $this->assertTrue(strpos($source, "**${name}**") !== false);
+      }
+    }
   }
   
   function testHandleAction() {

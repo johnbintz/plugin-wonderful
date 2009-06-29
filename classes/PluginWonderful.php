@@ -135,9 +135,12 @@ class PluginWonderful {
     return dirname(__FILE__) . "/../{$source}/{$name}.php";
   }
 
+  function _include($target) { include($target); }
+  function _file_exists($target) { return @file_exists($target); }
+
   function get_view($function_name) {
     $target = $this->_create_target(str_replace('plugin_wonderful_', '', $function_name), "views");
-    if (file_exists($target)) {
+    if ($this->_file_exists($target)) {
       $info = get_plugin_data(realpath(__FILE__));
 
       echo '<div class="wrap">';
@@ -146,7 +149,7 @@ class PluginWonderful {
 
         $this->show_messages();
 
-        include($target);
+        $this->_include($target);
 
         echo '<div style="margin-top: 20px; border-top: solid #E3E3E3 1px; overflow: hidden">';
           echo '<form style="float: right; display: inline" action="https://www.paypal.com/cgi-bin/webscr" method="post"><input type="hidden" name="cmd" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="3215507"><input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt=""><img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1"></form>';
@@ -156,7 +159,7 @@ class PluginWonderful {
         echo '</div>';
       echo '</div>';
     } else {
-      die(__("View not found: ", 'plugin-wonderful') . str_replace('plugin-wonderful_', '', $function_name));
+      echo __("View not found: ", 'plugin-wonderful') . str_replace('plugin_wonderful_', '', $function_name);
     }
   }
 
