@@ -393,18 +393,20 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
   
   function providerTestHandleActionChangeMemberID() {
     return array(
-      array("", false),
-      array("1.5", false),
-      array("a", false),
-      array("1", true)
+      array("", "", false, true),
+      array("", "1.5", false, true),
+      array("", "a", false, true),
+      array("", "1", true, false),
+      array("1", "1", false, false)
     );
   }
   
   /**
    * @dataProvider providerTestHandleActionChangeMemberID
    */
-  function testHandleActionChangeMemberID($member_id, $is_downloaded) {
+  function testHandleActionChangeMemberID($original_member_id, $member_id, $is_downloaded, $member_id_blank) {
     $_POST['memberid'] = $member_id;
+    update_option('plugin-wonderful-memberid', $original_member_id);
     
     $pw = $this->getMock('PluginWonderful', array("_download_project_wonderful_data"));
     if ($is_downloaded) {
@@ -414,6 +416,9 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
     }
     
     $pw->handle_action_change_memberid();
+    
+    $result = get_option('plugin-wonderful-memberid');
+    $this->assertEquals($member_id_blank, empty($result));
   }
   
   function providerTestRenderAdbox() {

@@ -273,32 +273,41 @@ class PluginWonderful {
   }
 
   function handle_action_change_memberid() {
-    update_option('plugin-wonderful-memberid', "");
-    if (trim($_POST['memberid'])) {
-      if (trim($_POST['memberid']) === (string)(int)$_POST['memberid']) {
-        update_option('plugin-wonderful-memberid', (int)$_POST['memberid']);
-        switch ($this->_download_project_wonderful_data((int)$_POST['memberid'])) {
-          case $this->message_types['DOWNLOADED']:
-            $this->messages[] = sprintf(__('Member number changed to %s and adbox information redownloaded.', 'plugin-wonderful'), (int)$_POST['memberid']);
-            break;
-          case $this->message_types['CANT_PARSE']:
-            $this->messages[] = __("Unable to parse publisher data from Project Wonderful.", 'plugin-wonderful');
-            break;
-          case $this->message_types['CANT_READ']:
-            $this->messages[] = __("Unable to read publisher data from Project Wonderful.", 'plugin-wonderful');
-            break;
+    $original_member_id = get_option('plugin-wonderful-memberid');
+    $trimmed_post_memberid = trim($_POST['memberid']);
+    if ($trimmed_post_memberid) {
+      if ($trimmed_post_memberid === (string)(int)$trimmed_post_memberid) {
+        if ($original_member_id !== $trimmed_post_memberid) {
+          update_option('plugin-wonderful-memberid', (int)$trimmed_post_memberid);
+          switch ($this->_download_project_wonderful_data((int)$_POST['memberid'])) {
+            case $this->message_types['DOWNLOADED']:
+              $this->messages[] = sprintf(__('Member number changed to %s and adbox information redownloaded.', 'plugin-wonderful'), (int)$_POST['memberid']);
+              break;
+            case $this->message_types['CANT_PARSE']:
+              $this->messages[] = __("Unable to parse publisher data from Project Wonderful.", 'plugin-wonderful');
+              break;
+            case $this->message_types['CANT_READ']:
+              $this->messages[] = __("Unable to read publisher data from Project Wonderful.", 'plugin-wonderful');
+              break;
+          }
         }
       } else {
         $this->messages[] = __("Member numbers need to be numeric.", 'plugin-wonderful');
         $this->publisher_info = false;
+        update_option('plugin-wonderful-memberid', "");
       }
     } else {
       $this->messages[] = __("Existing adbox information removed.", 'plugin-wonderful');
       $this->publisher_info = false;
+      update_option('plugin-wonderful-memberid', "");
     }
 
     foreach (array('use-standardcode', 'enable-body-copy-embedding') as $field) {
       update_option("plugin-wonderful-${field}", isset($_POST[$field]) ? "1" : "0");
+    }
+    
+    if (count($this->messages) == 0) {
+      $this->messages[] = __("Options updated.", 'plugin-wonderful');    
     }
   }
   
