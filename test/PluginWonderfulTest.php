@@ -175,8 +175,38 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals("test", ob_get_clean());
   }
 
-  function testInsertAdsIntoRSS() {
-    $this->markTestIncomplete();
+  function providerInsertAdsIntoRSS() {
+    return array(
+      array(false, false, 0),
+      array(true, false, 0),
+      array(true, true, 0),
+      array(true, true, 1)
+    );
+  }
+
+  /**
+   * @dataProvider providerInsertAdsIntoRSS
+   */
+  function testInsertAdsIntoRSS($is_feed, $publisher_info, $in_rss_feed) {
+    _set_current_option('is_feed', $is_feed);
+    
+    if ($is_feed) {
+      if ($publisher_info) {
+        $this->pw->publisher_info = (object)array(
+          'adboxes' => array(
+            (object)array('advancedcode' => "<noscript>test</noscript>", 'in_rss_feed' => $in_rss_feed)
+          )
+        );
+      } else {
+        $this->pw->publisher_info = false;
+      }
+    }
+    
+    ob_start();
+    $this->pw->insert_rss_feed_ads("body");
+    $source = ob_get_clean();
+    
+    $this->assertEquals($is_feed && $publisher_info && ($in_rss_feed == 1), !empty($source));
   }
   
   function testInsertActivationAd() {
@@ -215,6 +245,7 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
   }
   
   function testCreateTarget() {
+    
     $this->markTestIncomplete();
   }
   
