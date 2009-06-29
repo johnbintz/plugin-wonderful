@@ -293,10 +293,6 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
      $pw->handle_action();
   }
   
-  function testHandleActionSaveWidgets() {
-    $this->markTestIncomplete();
-  }
-  
   function testHandleActionChangeAdboxSettings() {
     $this->markTestIncomplete();
   }
