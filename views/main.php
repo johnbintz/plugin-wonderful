@@ -1,4 +1,6 @@
+<?php $nonce = wp_create_nonce('plugin-wonderful'); ?>
 <form id="pw-handler" action="" method="post">
+  <input type="hidden" name="_pw_nonce" value="<?php echo $nonce ?>" />
   <input type="hidden" name="action" value="change-memberid" />
   <table class="form-table">
     <tr>
@@ -42,6 +44,7 @@
 <?php if ($this->publisher_info !== false) { ?>
   <h3><?php _e('Adbox Information', 'plugin-wonderful') ?></h3>
   <form action="" method="post">
+    <input type="hidden" name="_pw_nonce" value="<?php echo $nonce ?>" />
     <input type="hidden" name="action" value="change-adbox-settings" />
     <table class="widefat post fixed">
       <tr>
@@ -135,6 +138,7 @@
     </p>
 
     <form id="pw-handler" action="" method="post">
+      <input type="hidden" name="_pw_nonce" value="<?php echo $nonce ?>" />
       <input type="hidden" name="action" value="rebuild-database" />
       <input type="submit" value="<?php _e('Destroy and Rebuild Database', 'plugin-wonderful') ?>" class="button" />
     </form>
