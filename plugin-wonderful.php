@@ -34,7 +34,9 @@ define('PLUGIN_WONDERFUL_UPDATE_TIME', 60 * 60 * 12); // every 12 hours
 $plugin_wonderful = new PluginWonderful();
 
 function __plugin_wonderful_load_widgets() {
-  register_widget('PluginWonderfulWidget');
+  if (class_exists('WP_Widget')) {
+    register_widget('PluginWonderfulWidget');
+  }
 }
 
 add_action('admin_menu', array($plugin_wonderful, 'set_up_menu'));
