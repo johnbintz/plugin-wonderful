@@ -111,18 +111,10 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
   
   function testTemplateTag() {
     global $plugin_wonderful;
-    
-    $plugin_wonderful = $this->getMock('PluginWonderful');
-  
-    $plugin_wonderful->publisher_info = (object)array(
-      'adboxes' => array(
-        (object)array('adboxid' => '123', 'advancedcode' => "test", 'standardcode' => "not-test")
-      )
-    );
-    
-    ob_start();
+   
+    $plugin_wonderful = $this->getMock('PluginWonderful', array('_render_adbox'));
+    $plugin_wonderful->expects($this->once())->method('_render_adbox');
     the_project_wonderful_ad('123');
-    $this->assertEquals("test", ob_get_clean());
   }
 
   function providerInsertAdsIntoRSS() {
@@ -399,8 +391,68 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
     $pw->handle_action_rebuild_database();
   }
   
-  function testHandleActionChangeMemberID() {
-    $this->markTestIncomplete();
+  function providerTestHandleActionChangeMemberID() {
+    return array(
+      array("", false),
+      array("1.5", false),
+      array("a", false),
+      array("1", true)
+    );
+  }
+  
+  /**
+   * @dataProvider providerTestHandleActionChangeMemberID
+   */
+  function testHandleActionChangeMemberID($member_id, $is_downloaded) {
+    $_POST['memberid'] = $member_id;
+    
+    $pw = $this->getMock('PluginWonderful', array("_download_project_wonderful_data"));
+    if ($is_downloaded) {
+      $pw->expects($this->once())->method('_download_project_wonderful_data');
+    } else {
+      $pw->expects($this->never())->method('_download_project_wonderful_data');    
+    }
+    
+    $pw->handle_action_change_memberid();
+  }
+  
+  function providerTestRenderAdbox() {
+    return array(
+      array(false, null, null, null, ""),
+      array(true, null, null, null, ""),
+      array(true, "123", 0, null, "advanced"),
+      array(true, "123", 1, null, "standard"),
+      array(true, "abc", 1, null, "standard"),
+      array(true, "abc", 1, 1, "<center>standard</center>")
+    );
+  }
+  
+  /**
+   * @dataProvider providerTestRenderAdbox
+   */
+  function testRenderAdbox($has_publisher_info, $requested_adboxid, $use_standardcode, $center_widget, $expected_result) {
+    global $plugin_wonderful;
+
+    $test_ad = (object)array(
+      'adboxid' => '123',
+      'template_tag_id' => 'abc',
+      'standardcode' => 'standard',
+      'advancedcode' => 'advanced'
+    );
+    
+    if ($has_publisher_info) {
+      $this->pw->publisher_info = (object)array(
+        'adboxes' => array($test_ad)
+      );
+      
+      update_option("plugin-wonderful-use-standardcode", $use_standardcode);
+    } else {
+      $this->pw->publisher_info = false;
+    }
+    
+    ob_start();
+    $this->pw->_render_adbox($requested_adboxid, $center_widget);
+    $this->assertEquals($expected_result, ob_get_clean());
   }
 }
 

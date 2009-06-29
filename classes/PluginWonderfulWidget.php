@@ -15,25 +15,9 @@ class PluginWonderfulWidget extends WP_Widget {
 	}
 	
 	function widget($args, $instance) {
-	  global $plugin_wonderful;
-
-    if ($plugin_wonderful->publisher_info !== false) {
-      foreach ($plugin_wonderful->publisher_info->adboxes as $adbox) {
-        if (($adbox->adboxid == $instance['adboxid']) || ($adbox->template_tag_id == $instance['adboxid'])) {
-          if (get_option("plugin-wonderful-use-standardcode") == 1) {
-            $output = $adbox->standardcode;
-          } else {
-            $output = $adbox->advancedcode;
-          }
-          if ($instance['center'] == 1) {
-            $output = "<center>{$output}</center>";
-          }
-          echo $output;
-          break;
-        }
-      }
-    }
-	}
+    global $plugin_wonderful;
+    $plugin_wonderful->_render_adbox($instance['adboxid'], $instance['center']);
+  }
   
   function form($instance) {
     global $plugin_wonderful;

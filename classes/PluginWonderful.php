@@ -273,33 +273,27 @@ class PluginWonderful {
   }
 
   function handle_action_change_memberid() {
+    update_option('plugin-wonderful-memberid', "");
     if (trim($_POST['memberid'])) {
       if (trim($_POST['memberid']) === (string)(int)$_POST['memberid']) {
-        if (($result = file_get_contents(sprintf(PLUGIN_WONDERFUL_XML_URL, (int)$_POST['memberid']))) !== false) {
-          $this->publisher_info = new PublisherInfo();
-          if ($this->publisher_info->parse($result)) {
-            update_option('plugin-wonderful-memberid', (int)$_POST['memberid']);
-            $this->adboxes_client->post_ads($this->publisher_info);
+        update_option('plugin-wonderful-memberid', (int)$_POST['memberid']);
+        switch ($this->_download_project_wonderful_data((int)$_POST['memberid'])) {
+          case $this->message_types['DOWNLOADED']:
             $this->messages[] = sprintf(__('Member number changed to %s and adbox information redownloaded.', 'plugin-wonderful'), (int)$_POST['memberid']);
-          } else {
+            break;
+          case $this->message_types['CANT_PARSE']:
             $this->messages[] = __("Unable to parse publisher data from Project Wonderful.", 'plugin-wonderful');
-            update_option('plugin-wonderful-memberid', "");
-            $this->publisher_info = false;
-          }
-        } else {
-          $this->messages[] = __("Unable to read publisher data from Project Wonderful.", 'plugin-wonderful');
-          update_option('plugin-wonderful-memberid', "");
-          $this->publisher_info = false;
+            break;
+          case $this->message_types['CANT_READ']:
+            $this->messages[] = __("Unable to read publisher data from Project Wonderful.", 'plugin-wonderful');
+            break;
         }
       } else {
         $this->messages[] = __("Member numbers need to be numeric.", 'plugin-wonderful');
-        update_option('plugin-wonderful-memberid', "");
         $this->publisher_info = false;
       }
     } else {
       $this->messages[] = __("Existing adbox information removed.", 'plugin-wonderful');
-      update_option('plugin-wonderful-memberid', "");
-
       $this->publisher_info = false;
     }
 
@@ -307,11 +301,30 @@ class PluginWonderful {
       update_option("plugin-wonderful-${field}", isset($_POST[$field]) ? "1" : "0");
     }
   }
+  
+  function _render_adbox($adboxid, $center = false) {
+    if ($this->publisher_info !== false) {
+      foreach ($this->publisher_info->adboxes as $adbox) {
+        if (($adbox->adboxid == $adboxid) || ($adbox->template_tag_id == $adboxid)) {
+          if (get_option("plugin-wonderful-use-standardcode") == 1) {
+            $output = $adbox->standardcode;
+          } else {
+            $output = $adbox->advancedcode;
+          }
+          if ($center == 1) {
+            $output = "<center>{$output}</center>";
+          }
+          echo $output;
+          break;
+        }
+      }
+    }
+  }
 }
 
 function the_project_wonderful_ad($adboxid) {
-  $w = new PluginWonderfulWidget();
-  $w->widget(array(), array('adboxid' => $adboxid));
+  global $plugin_wonderful;
+  $plugin_wonderful->_render_adbox($adboxid);
 }
 
 ?>

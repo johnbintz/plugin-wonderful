@@ -16,47 +16,14 @@ class PluginWonderfulWidgetTest extends PHPUnit_Framework_TestCase {
 		$this->w = new PluginWonderfulWidget();
 		$this->assertEquals("Plugin Wonderful", $wp_test_expectations['wp_widgets']['plugin-wonderful']['name']);
 	}
-	  
-  function providerTestRenderWidget() {
-    return array(
-      array(false, null, null, null, ""),
-      array(true, null, null, null, ""),
-      array(true, "123", 0, null, "advanced"),
-      array(true, "123", 1, null, "standard"),
-      array(true, "abc", 1, null, "standard"),
-      array(true, "abc", 1, 1, "<center>standard</center>")
-    );
-  }
-  
-  /**
-   * @dataProvider providerTestRenderWidget
-   */
-  function testRenderWidget($has_publisher_info, $requested_adboxid, $use_standardcode, $center_widget, $expected_result) {
+	
+  function testRenderWidget() {
     global $plugin_wonderful;
-    $plugin_wonderful = $this->getMock('PluginWonderful');
+    $plugin_wonderful = $this->getMock('PluginWonderful', array('_render_adbox'));
+    $plugin_wonderful->expects($this->once())->method('_render_adbox');
     
-    $test_ad = (object)array(
-      'adboxid' => '123',
-      'template_tag_id' => 'abc',
-      'standardcode' => 'standard',
-      'advancedcode' => 'advanced'
-    );
-    
-    if ($has_publisher_info) {
-      $plugin_wonderful->publisher_info = (object)array(
-        'adboxes' => array($test_ad)
-      );
-      
-      update_option("plugin-wonderful-use-standardcode", $use_standardcode);
-    } else {
-      $plugin_wonderful->publisher_info = false;
-    }
-    
-    ob_start();
-    $this->w->widget(array(), array('adboxid' => $requested_adboxid, 'center' => $center_widget));
-    $this->assertEquals($expected_result, ob_get_clean());
+    $this->w->widget(array(), array());
   }
-  
   
   function testRenderWidgetControl() {
     global $plugin_wonderful;
