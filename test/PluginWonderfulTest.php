@@ -266,8 +266,31 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
     }
   }
   
-  function testHandleAction() {
-    $this->markTestIncomplete();
+  function providerTestHandleAction() {
+    return array(
+      array(false, false, false),
+      array(true, false, false),
+      array(true, true, true)
+    );
+  }
+  
+  /**
+   * @dataProvider providerTestHandleAction
+   */
+  function testHandleAction($has_nonce, $has_verify_nonce, $method_exists) {
+    if ($has_nonce) { $_POST['_pw_nonce'] = "12345"; }
+     _set_valid_nonce('plugin-wonderful', $has_verify_nonce ? '12345' : '54321');
+          
+     $pw = $this->getMock('PluginWonderful', $method_exists ? array('handle_action_test') : array('handle_action_invalid'));
+     $_POST['action'] = 'test';
+     
+     if ($method_exists) {
+       $pw->expects($this->once())->method('handle_action_test');
+     } else {
+       $pw->expects($this->never())->method('handle_action_invalid');     
+     }
+     
+     $pw->handle_action();
   }
   
   function testHandleActionSaveWidgets() {

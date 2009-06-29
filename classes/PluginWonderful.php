@@ -164,12 +164,11 @@ class PluginWonderful {
   }
 
   function handle_action() {
-    $action = "handle_action_" . str_replace("-", "_", preg_replace('#[^a-z\-]#', '', strtolower($_POST['action'])));
-    if (method_exists($this, $action)) { call_user_func(array($this, $action)); }
-
-    // handle widget updates
-    if (isset($_POST['pw']['_nonce'])) {
-      if (wp_verify_nonce($_POST['pw']['_nonce'], "plugin-wonderful")) { $this->handle_action_save_widgets(); }
+    if (!empty($_POST['_pw_nonce'])) {
+      if (wp_verify_nonce($_POST['_pw_nonce'], 'plugin-wonderful')) {
+        $action = "handle_action_" . str_replace("-", "_", preg_replace('#[^a-z\-]#', '', strtolower($_POST['action'])));
+        if (method_exists($this, $action)) { call_user_func(array($this, $action)); }
+      }
     }
   }
 
