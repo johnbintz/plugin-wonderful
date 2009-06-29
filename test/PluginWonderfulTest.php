@@ -209,10 +209,6 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals($is_feed && $publisher_info && ($in_rss_feed == 1), !empty($source));
   }
   
-  function testInsertActivationAd() {
-    $this->markTestIncomplete();
-  }
-  
   function providerTestInjectAdsIntoBodyCopy() {
     return array(
       array(false, null),
