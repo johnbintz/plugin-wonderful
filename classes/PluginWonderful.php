@@ -73,13 +73,7 @@ class PluginWonderful {
       $last_update = (int)$last_update;
       
       if (($last_update + PLUGIN_WONDERFUL_UPDATE_TIME) < time()) {
-        if (($result = $this->_retrieve_url(sprintf(PLUGIN_WONDERFUL_XML_URL, (int)get_option('plugin-wonderful-memberid')))) !== false) {
-          $this->publisher_info = $this->_get_new_publisher_info_object();
-          if ($this->publisher_info->parse($result)) {
-            $this->adboxes_client->post_ads($this->publisher_info);
-            update_option('plugin-wonderful-last-update', time());
-          }
-        }
+        $this->_download_project_wonderful_data($member_id);
       }
     }	
     
