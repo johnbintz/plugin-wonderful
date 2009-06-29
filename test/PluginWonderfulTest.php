@@ -15,15 +15,6 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
 		_reset_wp();
 	}
 	
-  function testSaveWidgetsIsCalled() {
-		_set_valid_nonce("plugin-wonderful", "12345");
-		$_POST['pw']['_nonce'] = "12345";
-	
-	  $pw = $this->getMock('PluginWonderful', array('handle_action_save_widgets'));
-		$pw->expects($this->once())->method("handle_action_save_widgets");
-		$pw->handle_action();
-	}
-  
 	function testHandleActivation() {
 		$pw = $this->getMock('PluginWonderful', array('init'));
 		$pw->adboxes_client = $this->getMock('PWAdboxesClient', array('initialize'));
