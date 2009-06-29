@@ -388,9 +388,56 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
       $this->assertTrue(is_null($result));
     }
   }
+
+  function providerTestDownloadProjectWonderfulData() {
+    return array(
+      array(false, false, "can't read"),
+      array(true, false, "can't parse"),
+      array(true, true, "downloaded"),
+    );
+  }
   
-  function testHandleActionRebuildDatabase() {
-    $this->markTestIncomplete();
+  /**
+   * @dataProvider providerTestDownloadProjectWonderfulData
+   */
+  function testDownloadProjectWonderfulData($did_download_data, $did_parse_data, $expected_result) {
+    $pw = $this->getMock('PluginWonderful', array('_retrieve_url', '_get_new_publisher_info_object'));
+    
+    $pw->expects($this->once())->method('_retrieve_url')->will($this->returnValue($did_download_data));
+    if ($did_download_data) {      
+      $publisher_info = $this->getMock('PublisherInfo');
+      $publisher_info->expects($this->once())->method('parse')->will($this->returnValue($did_parse_data));
+      
+      $pw->expects($this->once())->method('_get_new_publisher_info_object')->will($this->returnValue($publisher_info));
+      
+      if ($did_parse_data) {
+        $pw->adboxes_client = $this->getMock('PWAdboxesClient', array('post_ads'));
+        $pw->adboxes_client->expects($this->once())->method('post_ads');
+      }
+    }
+    
+    $this->assertEquals($expected_result, $pw->_download_project_wonderful_data('123'));
+  }
+
+  function providerTestHandleActionRebuildDatabase() {
+    return array(
+      array(""), array(1)
+    );
+  }
+
+  /**
+   * @dataProvider providerTestHandleActionRebuildDatabase
+   */
+  function testHandleActionRebuildDatabase($member_id) {
+    $pw = $this->getMock('PluginWonderful', array('_download_project_wonderful_data'));
+    $pw->adboxes_client = $this->getMock('PWAdboxesClient', array('destroy', 'initialize'));
+    
+    update_option('plugin-wonderful-memberid', $member_id);
+    if (!empty($member_id)) {
+      $pw->expects($this->once())->method("_download_project_wonderful_data")->with($member_id);
+    }
+    
+    $pw->handle_action_rebuild_database();
   }
   
   function testHandleActionChangeMemberID() {

@@ -5,6 +5,12 @@ require_once('PluginWonderfulWidget.php');
 class PluginWonderful {
   var $messages, $adboxes_client, $publisher_info, $member_id;
   var $widget_prefix = "plugin-wonderful";
+  
+  var $message_types = array(
+    'CANT_READ' => "can't read",
+    'CANT_PARSE' => "can't parse",
+    'DOWNLOADED' => "downloaded"
+  );
 
   function PluginWonderful() {}
   
@@ -234,25 +240,40 @@ class PluginWonderful {
     return $changes;
   }
 
+  function _download_project_wonderful_data($member_id) {
+    if (($result = $this->_retrieve_url(sprintf(PLUGIN_WONDERFUL_XML_URL, $member_id))) !== false) {
+      $this->publisher_info = $this->_get_new_publisher_info_object();
+      if ($this->publisher_info->parse($result)) {
+        $this->adboxes_client->post_ads($this->publisher_info);
+        return $this->message_types['DOWNLOADED'];
+      } else {
+        $this->publisher_info = false;
+        return $this->message_types['CANT_PARSE'];
+      }
+    } else {
+      $this->publisher_info = false;
+      return $this->message_types['CANT_READ'];
+    }
+  }
+
   function handle_action_rebuild_database() {
     $this->adboxes_client->destroy();
     $this->adboxes_client->initialize();
 
     $this->messages[] = __("Adbox database destroyed and rebuilt.", 'plugin-wonderful');
 
-    if (get_option('plugin-wonderful-memberid') != "") {
-      if (($result = file_get_contents(sprintf(PLUGIN_WONDERFUL_XML_URL, (int)get_option('plugin-wonderful-memberid')))) !== false) {
-        $this->publisher_info = new PublisherInfo();
-        if ($this->publisher_info->parse($result)) {
-          $this->adboxes_client->post_ads($this->publisher_info);
-          $this->messages[] = sprintf(__('Adbox information redownloaded.', 'plugin-wonderful'), (int)$_POST['memberid']);
-        } else {
+    $result = get_option('plugin-wonderful-memberid');
+    if (!empty($result)) {
+      switch ($this->_download_project_wonderful_data($result)) {
+        case $this->message_types['DOWNLOADED']:
+          $this->messages[] = __('Adbox information redownloaded.', 'plugin-wonderful');
+          break;
+        case $this->message_types['CANT_PARSE']:
           $this->messages[] = __("Unable to parse publisher data from Project Wonderful.", 'plugin-wonderful');
-          $this->publisher_info = false;
-        }
-      } else {
-        $this->messages[] = __("Unable to read publisher data from Project Wonderful.", 'plugin-wonderful');
-        $this->publisher_info = false;
+          break;
+        case $this->message_types['CANT_READ']:
+          $this->messages[] = __("Unable to read publisher data from Project Wonderful.", 'plugin-wonderful');
+          break;
       }
     }
   }
