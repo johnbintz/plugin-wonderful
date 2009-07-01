@@ -52,7 +52,7 @@ class ViewMainTest extends PHPUnit_Framework_TestCase {
 
   function providerTestGetFirstAdboxID() {
     return array(
-      array(false, null),
+      array(false, "12345"),
       array(
         (object)array('template_tag_id' => 'meow'),
         "'meow'"

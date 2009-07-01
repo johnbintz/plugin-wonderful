@@ -349,6 +349,8 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
   function testDownloadProjectWonderfulData($did_download_data, $did_parse_data, $expected_result) {
     $pw = $this->getMock('PluginWonderful', array('_retrieve_url', '_get_new_publisher_info_object'));
     
+    update_option('plugin-wonderful-last-update', 0);
+    
     $pw->expects($this->once())->method('_retrieve_url')->will($this->returnValue($did_download_data));
     if ($did_download_data) {      
       $publisher_info = $this->getMock('PublisherInfo');
@@ -363,6 +365,10 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
     }
     
     $this->assertEquals($expected_result, $pw->_download_project_wonderful_data('123'));
+    
+    if ($did_parse_data) {
+      $this->assertNotEquals(0, get_option('plugin-wonderful-last-update'));
+    }
   }
 
   function providerTestHandleActionRebuildDatabase() {

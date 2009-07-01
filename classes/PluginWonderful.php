@@ -263,6 +263,7 @@ class PluginWonderful {
       $this->publisher_info = $this->_get_new_publisher_info_object();
       if ($this->publisher_info->parse($result)) {     
         $this->adboxes_client->post_ads($this->publisher_info);
+        update_option('plugin-wonderful-last-update', time());
         return $this->message_types['DOWNLOADED'];
       } else {
         $this->publisher_info = false;
