@@ -177,6 +177,11 @@ class PluginWonderful {
           echo '<form style="float: right; display: inline" action="https://www.paypal.com/cgi-bin/webscr" method="post"><input type="hidden" name="cmd" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="3215507"><input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt=""><img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1"></form>';
           echo sprintf(__('%1$s Version %2$s by %3$s', 'plugin-wonderful'), $info['Title'], $info['Version'], $info['Author']) . ' | ';
           echo __('<a href="http://www.projectwonderful.com/login.php">Manage your Project Wonderful publisher account</a>', 'plugin-wonderful');
+          
+          if (version_compare(phpversion(), "5", "<")) {
+            echo ' | <a href="http://www.linode.com/?r=3fdf41e740d3ada4e91d4b3b86bb3e011be260f0">' . __('Move away from PHP 4 and support Plugin Wonderful', 'plugin-wonderful') . '</a>';
+          }
+          
           echo '<br style="clear: both" />';
         echo '</div>';
       echo '</div>';
