@@ -556,10 +556,6 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected_result, $this->pw->_normalize_pre28_option());
     $this->assertEquals($expected_result, get_option('plugin-wonderful-pre28-widget-info'));
   }
-  
-  function testHandlePre28WidgetUpdate() {
-    $this->markTestIncomplete();
-  }
 }
 
 ?>

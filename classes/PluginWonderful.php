@@ -165,7 +165,7 @@ class PluginWonderful {
   function handle_action() {
     if (!empty($_POST['_pw_nonce'])) {
       if (wp_verify_nonce($_POST['_pw_nonce'], 'plugin-wonderful')) {
-        $action = "handle_action_" . str_replace("-", "_", preg_replace('#[^a-z\-]#', '', strtolower($_POST['_pw_action'])));
+        $action = "handle_action_" . str_replace("-", "_", preg_replace('#[^a-z0-9\-]#', '', strtolower($_POST['_pw_action'])));
         if (method_exists($this, $action)) { call_user_func(array($this, $action)); }
       }
     }
@@ -372,13 +372,15 @@ class PluginWonderful {
     }
   }
   
-  function _normalize_pre28_option() {
+  function _normalize_pre28_option($data = null) {
     $instance = array(
       'adboxid' => false,
       'center' => 0
     );
     
-    $data = get_option('plugin-wonderful-pre28-widget-info');
+    if (!is_array($data)) {
+      $data = get_option('plugin-wonderful-pre28-widget-info');
+    }
     if (is_array($data)) {
       foreach ($data as $field => $value) {
         if (isset($instance[$field])) {
@@ -399,6 +401,12 @@ class PluginWonderful {
     echo '<input type="hidden" name="_pw_nonce" value="' . wp_create_nonce('plugin-wonderful') . '" />';
     echo '<input type="hidden" name="_pw_action" value="update-pre28-widget" />';
     $this->_render_adbox_admin($instance, array('adboxid' => 'pw[adboxid]', 'center' => 'pw[center]'));
+  }
+  
+  function handle_action_update_pre28_widget() {
+    if (isset($_POST['pw'])) {
+      $this->_normalize_pre28_option($_POST['pw']);
+    }
   }
 }
 
