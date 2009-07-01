@@ -33,13 +33,32 @@ class PluginWonderful {
       
       $this->_get_publisher_info();
       $this->_update_database_version();
-    
-      if ($wp_version < 2.8) {
-        register_sidebar_widget(__('Plugin Wonderful', 'plugin-wonderful'), array($this, 'render_pre28_widget'));
-        register_widget_control(__('Plugin Wonderful', 'plugin-wonderful'), array($this, 'render_pre28_widget_control'));
+      $this->_update_plugin_wonderful();
+      
+      if (!empty($_POST)) { $this->handle_action(); }
+      $this->_update_plugin_wonderful();
+    }
+  }
+  
+  /**
+   * Fix PHP 4's full-of-fail object handling.
+   */
+  function _update_plugin_wonderful() {
+    if (version_compare("5", phpversion(), ">")) {
+      global $plugin_wonderful;
+      $plugin_wonderful = $this;
+    }
+  }
+  
+  /**
+   * Fix PHP 4's full-of-fail object handling.
+   */
+  function _update_this() {
+    if (version_compare("5", phpversion(), ">")) {
+      global $plugin_wonderful;
+      foreach ((array)$plugin_wonderful as $field => $value) {
+        $this->{$field} = $plugin_wonderful->{$field};
       }
-    
-      if (!empty($_POST)) { $this->handle_action(); }	
     }
   }
 
@@ -71,6 +90,7 @@ class PluginWonderful {
   function _get_publisher_info() {
     $this->publisher_info = false;
     $member_id = get_option('plugin-wonderful-memberid');
+
     if (is_numeric($member_id)) {
       $member_id = (int)$member_id;
       $this->publisher_info = $this->adboxes_client->get_ads($member_id);
@@ -88,6 +108,7 @@ class PluginWonderful {
   }
 
   function insert_rss_feed_ads($content) {
+    $this->_update_this();
     if (is_feed()) {
       if ($this->publisher_info !== false) {
         foreach ($this->publisher_info->adboxes as $adbox) {
@@ -109,6 +130,7 @@ class PluginWonderful {
    * @return string The modified body.
    */
   function inject_ads_into_body_copy($body) {
+    $this->_update_this();
     if ($this->publisher_info !== false) {
       if (get_option("plugin-wonderful-enable-body-copy-embedding") == 1) {
         return $this->publisher_info->inject_ads_into_body_copy($body, (get_option("plugin-wonderful-use-standardcode") == 1));
@@ -127,6 +149,7 @@ class PluginWonderful {
   }
 
   function plugin_wonderful_main() {
+    $this->_update_this();
     $this->show_view(new PluginWonderfulViewMain());
   }
 
@@ -166,7 +189,7 @@ class PluginWonderful {
     if (!empty($_POST['_pw_nonce'])) {
       if (wp_verify_nonce($_POST['_pw_nonce'], 'plugin-wonderful')) {
         $action = "handle_action_" . str_replace("-", "_", preg_replace('#[^a-z0-9\-]#', '', strtolower($_POST['_pw_action'])));
-        if (method_exists($this, $action)) { call_user_func(array($this, $action)); }
+        if (method_exists($this, $action)) { $this->{$action}(); }
       }
     }
   }
@@ -230,13 +253,15 @@ class PluginWonderful {
     if (count($this->messages) == 0) {
       $this->messages[] = __("No changes to adboxes were made.", 'plugin-wonderful');
     }
+    
     return $changes;
   }
 
   function _download_project_wonderful_data($member_id) {
+    global $plugin_wonderful;
     if (($result = $this->_retrieve_url(sprintf(PLUGIN_WONDERFUL_XML_URL, $member_id))) !== false) {
       $this->publisher_info = $this->_get_new_publisher_info_object();
-      if ($this->publisher_info->parse($result)) {
+      if ($this->publisher_info->parse($result)) {     
         $this->adboxes_client->post_ads($this->publisher_info);
         return $this->message_types['DOWNLOADED'];
       } else {
@@ -358,6 +383,7 @@ class PluginWonderful {
   }
   
   function render_pre28_widget() {
+    $this->_update_this();
     $data = get_option('plugin-wonderful-pre28-widget-info');
     if (is_array($data)) {
       if (count(array_intersect(array_keys($data), array("adboxid", "center"))) == 2) {
@@ -396,6 +422,7 @@ class PluginWonderful {
   }
   
   function render_pre28_widget_control() {
+    $this->_update_this();
     $instance = $this->_normalize_pre28_option();
     
     echo '<input type="hidden" name="_pw_nonce" value="' . wp_create_nonce('plugin-wonderful') . '" />';

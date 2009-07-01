@@ -17,7 +17,7 @@ class PluginWonderfulViewMain {
     global $plugin_wonderful;
     
     $this->first_adboxid = null;
-    if ($plugin_wonderful->publisher_info !== false) {
+    if (!empty($plugin_wonderful->publisher_info)) {
       foreach ($plugin_wonderful->publisher_info->adboxes as $adbox) {
         if (empty($this->first_adboxid)) {
           if (!empty($adbox->template_tag_id)) {
@@ -29,10 +29,11 @@ class PluginWonderfulViewMain {
         }
       }
     }
+    if (is_null($this->first_adboxid)) { $this->first_adboxid = '12345'; }
   }
   
   function _partial_path($name) {
-    return dirname(__FILE__) . '/' . __CLASS__ . '/' . $name . '.inc';
+    return dirname(__FILE__) . '/PluginWonderfulViewMain/' . $name . '.inc';
   }
   
   function _render_memberid_settings() {

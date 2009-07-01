@@ -43,8 +43,11 @@ add_action('admin_menu', array($plugin_wonderful, 'set_up_menu'));
 add_action('init', array($plugin_wonderful, 'init'));
 add_filter('the_excerpt_rss', array($plugin_wonderful, 'insert_rss_feed_ads'));
 add_filter('the_content', array($plugin_wonderful, 'inject_ads_into_body_copy'));
-if ($wp_version >= 2.8) {
+if (version_compare($wp_version, "2.8", ">=")) {
   add_action('widgets_init', '__plugin_wonderful_load_widgets');
+} else {
+  register_sidebar_widget(__('Plugin Wonderful', 'plugin-wonderful'), array($this, 'render_pre28_widget'));
+  register_widget_control(__('Plugin Wonderful', 'plugin-wonderful'), array($this, 'render_pre28_widget_control'));
 }
 
 register_activation_hook(__FILE__, array($plugin_wonderful, 'handle_activation'));

@@ -1,5 +1,5 @@
 <?php if (is_admin()) { ?>
-  <?php if ($plugin_wonderful->publisher_info !== false) { ?>
+  <?php if (!empty($plugin_wonderful->publisher_info)) { ?>
     <h3><?php _e('Adbox Information', 'plugin-wonderful') ?></h3>
     <form action="" method="post">
       <input type="hidden" name="_pw_nonce" value="<?php echo $this->_pw_nonce ?>" />
