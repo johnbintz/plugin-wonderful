@@ -22,32 +22,13 @@ if (class_exists('WP_Widget')) {
     
     function form($instance) {
       global $plugin_wonderful;
-      
-      if ($plugin_wonderful->publisher_info !== false) {
-        echo '<p>';
-          echo 'Select an adbox:<br />';
-          foreach ($plugin_wonderful->publisher_info->adboxes as $box) {
-            echo '<label>';
-              echo '<input type="radio" name="'
-                   . $this->get_field_name('adboxid')
-                   . '" value="'
-                   . $box->adboxid
-                   . '" '
-                   . (($instance['adboxid'] == $box->adboxid) ? 'checked="checked"' : "")
-                   . ' />';
-              echo $box->adtype . " " . $box->dimensions . " (" . $box->adboxid . ")";
-            echo "</label>";
-            echo "<br />";
-          }
-        echo '</p>';
-        
-        echo '<p>';
-          echo '<label>';
-            echo '<input type="checkbox" value="1" name="' . $this->get_field_name('center') . '" ' . (($instance['center'] == 1) ? 'checked="checked"' : "") . ' /> ';
-            echo 'Wrap ad in &lt;center&gt; tags';
-          echo '</label>';
-        echo '</p>';
-      }
+      $plugin_wonderful->_render_adbox_admin(
+        $instance,
+        array(
+          'adboxid' => $this->get_field_name('adboxid'),
+          'center' => $this->get_field_name('center')
+        )
+      );
     }
     
     function update($new_instance, $old_instance) {

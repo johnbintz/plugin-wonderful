@@ -3,7 +3,7 @@
     <h3><?php _e('Adbox Information', 'plugin-wonderful') ?></h3>
     <form action="" method="post">
       <input type="hidden" name="_pw_nonce" value="<?php echo $this->_pw_nonce ?>" />
-      <input type="hidden" name="action" value="change-adbox-settings" />
+      <input type="hidden" name="_pw_action" value="change-adbox-settings" />
       <table class="widefat post fixed">
         <tr>
           <th width="12%" class="manage-column"><?php _e('Site Name', 'plugin-wonderful') ?></th>

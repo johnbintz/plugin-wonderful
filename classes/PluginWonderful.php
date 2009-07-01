@@ -25,13 +25,20 @@ class PluginWonderful {
    * Initialize the object if it isn't already.
    */
   function init() {
+    global $wp_version;
+    
     if (empty($this->adboxes_client)) {
       $this->messages = array();
       $this->adboxes_client = new PWAdboxesClient();
       
       $this->_get_publisher_info();
       $this->_update_database_version();
-      
+    
+      if ($wp_version < 2.8) {
+        register_sidebar_widget(__('Plugin Wonderful', 'plugin-wonderful'), array($this, 'render_pre28_widget'));
+        register_widget_control(__('Plugin Wonderful', 'plugin-wonderful'), array($this, 'render_pre28_widget_control'));
+      }
+    
       if (!empty($_POST)) { $this->handle_action(); }	
     }
   }
@@ -120,7 +127,7 @@ class PluginWonderful {
   }
 
   function plugin_wonderful_main() {
-    $this->get_view(__FUNCTION__);
+    $this->show_view(new PluginWonderfulViewMain());
   }
 
   function show_messages() {
@@ -131,16 +138,8 @@ class PluginWonderful {
     }
   }
 
-  function _create_target($name, $source) {
-    return dirname(__FILE__) . "/../{$source}/{$name}.php";
-  }
-
-  function _include($target) { include($target); }
-  function _file_exists($target) { return @file_exists($target); }
-
-  function get_view($function_name) {
-    $target = $this->_create_target(str_replace('plugin_wonderful_', '', $function_name), "views");
-    if ($this->_file_exists($target)) {
+  function show_view($view) {
+    if (is_object($view) && method_exists($view, 'render')) {
       $info = get_plugin_data(realpath(__FILE__));
 
       echo '<div class="wrap">';
@@ -149,7 +148,7 @@ class PluginWonderful {
 
         $this->show_messages();
 
-        $this->_include($target);
+        $view->render();
 
         echo '<div style="margin-top: 20px; border-top: solid #E3E3E3 1px; overflow: hidden">';
           echo '<form style="float: right; display: inline" action="https://www.paypal.com/cgi-bin/webscr" method="post"><input type="hidden" name="cmd" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="3215507"><input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt=""><img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1"></form>';
@@ -159,14 +158,14 @@ class PluginWonderful {
         echo '</div>';
       echo '</div>';
     } else {
-      echo __("View not found: ", 'plugin-wonderful') . str_replace('plugin_wonderful_', '', $function_name);
+      var_dump($view);
     }
   }
 
   function handle_action() {
     if (!empty($_POST['_pw_nonce'])) {
       if (wp_verify_nonce($_POST['_pw_nonce'], 'plugin-wonderful')) {
-        $action = "handle_action_" . str_replace("-", "_", preg_replace('#[^a-z\-]#', '', strtolower($_POST['action'])));
+        $action = "handle_action_" . str_replace("-", "_", preg_replace('#[^a-z\-]#', '', strtolower($_POST['_pw_action'])));
         if (method_exists($this, $action)) { call_user_func(array($this, $action)); }
       }
     }
@@ -328,6 +327,78 @@ class PluginWonderful {
         }
       }
     }
+  }
+  
+  function _render_adbox_admin($instance, $field_names) {
+    if ($this->publisher_info !== false) {
+      echo '<p>';
+        echo 'Select an adbox:<br />';
+        foreach ($this->publisher_info->adboxes as $box) {
+          echo '<label>';
+            echo '<input type="radio" name="'
+                 . $field_names['adboxid']
+                 . '" value="'
+                 . $box->adboxid
+                 . '" '
+                 . (($instance['adboxid'] == $box->adboxid) ? 'checked="checked"' : "")
+                 . ' />';
+            echo $box->adtype . " " . $box->dimensions . " (" . $box->adboxid . ")";
+          echo "</label>";
+          echo "<br />";
+        }
+      echo '</p>';
+      
+      echo '<p>';
+        echo '<label>';
+          echo '<input type="checkbox" value="1" name="' . $field_names['center'] . '" ' . (($instance['center'] == 1) ? 'checked="checked"' : "") . ' /> ';
+          echo 'Wrap ad in &lt;center&gt; tags';
+        echo '</label>';
+      echo '</p>';
+    }  
+  }
+  
+  function render_pre28_widget() {
+    $data = get_option('plugin-wonderful-pre28-widget-info');
+    if (is_array($data)) {
+      if (count(array_intersect(array_keys($data), array("adboxid", "center"))) == 2) {
+        if ($this->publisher_info !== false) {
+          foreach ($this->publisher_info->adboxes as $adbox) {
+            if ($adbox->adboxid == $data['adboxid']) {
+              $this->_render_adbox($data['adboxid'], !empty($data['center']));
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  function _normalize_pre28_option() {
+    $instance = array(
+      'adboxid' => false,
+      'center' => 0
+    );
+    
+    $data = get_option('plugin-wonderful-pre28-widget-info');
+    if (is_array($data)) {
+      foreach ($data as $field => $value) {
+        if (isset($instance[$field])) {
+          if (is_numeric($value)) {
+            $instance[$field] = $value;
+          }
+        }
+      }
+    }
+  
+    update_option('plugin-wonderful-pre28-widget-info', $instance);
+    return $instance;
+  }
+  
+  function render_pre28_widget_control() {
+    $instance = $this->_normalize_pre28_option();
+    
+    echo '<input type="hidden" name="_pw_nonce" value="' . wp_create_nonce('plugin-wonderful') . '" />';
+    echo '<input type="hidden" name="_pw_action" value="update-pre28-widget" />';
+    $this->_render_adbox_admin($instance, array('adboxid' => 'pw[adboxid]', 'center' => 'pw[center]'));
   }
 }
 

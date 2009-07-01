@@ -27,28 +27,10 @@ class PluginWonderfulWidgetTest extends PHPUnit_Framework_TestCase {
   
   function testRenderWidgetControl() {
     global $plugin_wonderful;
-    $plugin_wonderful = $this->getMock('PluginWonderful');
+    $plugin_wonderful = $this->getMock('PluginWonderful', array('_render_adbox_admin'));
+    $plugin_wonderful->expects($this->once())->method('_render_adbox_admin');
     
-    $plugin_wonderful->publisher_info->adboxes = array(
-      (object)array('adboxid' => '123'),
-      (object)array('adboxid' => '234'),
-      (object)array('adboxid' => '345'),
-    );
-    
-    ob_start();
-    $this->w->form(array('adboxid' => '123', 'center' => 1));
-    $source = ob_get_clean();
-    
-    $this->assertTrue(($xml = _to_xml($source)) !== false);
-    
-    foreach (array(
-      '//input[@type="radio" and @name="' . $this->w->get_field_name('adboxid') . '" and @value="123" and @checked="checked"]' => true,
-      '//input[@type="radio" and @name="' . $this->w->get_field_name('adboxid') . '" and @value="234" and not(@checked="checked")]' => true,
-      '//input[@type="radio" and @name="' . $this->w->get_field_name('adboxid') . '" and @value="345" and not(@checked="checked")]' => true,
-      '//input[@type="checkbox" and @name="' . $this->w->get_field_name('center') . '" and @value="1" and @checked="checked"]' => true
-    ) as $xpath => $value) {
-      $this->assertTrue(_xpath_test($xml, $xpath, $value), $xpath);
-    }
+    $this->w->form(array());
   }
   
   function testUpdateWidget() {

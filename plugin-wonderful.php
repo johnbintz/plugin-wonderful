@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 foreach (glob(dirname(__FILE__) . '/classes/*.php') as $file) { require_once($file); }
-// require_once('FirePHPCore/fb.php');
+foreach (glob(dirname(__FILE__) . '/views/*.php') as $file) { require_once($file); }
 
 define('PLUGIN_WONDERFUL_XML_URL', 'http://www.projectwonderful.com/xmlpublisherdata.php?publisher=%d');
 define('PLUGIN_WONDERFUL_UPDATE_TIME', 60 * 60 * 12); // every 12 hours
@@ -43,7 +43,9 @@ add_action('admin_menu', array($plugin_wonderful, 'set_up_menu'));
 add_action('init', array($plugin_wonderful, 'init'));
 add_filter('the_excerpt_rss', array($plugin_wonderful, 'insert_rss_feed_ads'));
 add_filter('the_content', array($plugin_wonderful, 'inject_ads_into_body_copy'));
-add_action('widgets_init', '__plugin_wonderful_load_widgets');
+if ($wp_version >= 2.8) {
+  add_action('widgets_init', '__plugin_wonderful_load_widgets');
+}
 
 register_activation_hook(__FILE__, array($plugin_wonderful, 'handle_activation'));
 

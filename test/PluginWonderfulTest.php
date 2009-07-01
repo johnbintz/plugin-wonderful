@@ -182,17 +182,18 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected_body, $this->pw->inject_ads_into_body_copy("body"));
   }
   
-  function providerTestGetView() {
+  function providerTestShowView() {
     return array(
-      array("**bad**", false),
-      array("**good**", true),
+      array(null, false),
+      array((object)array(), false),
+      array($this->getMock('Test', array('render')), true)
     );
   }
   
   /**
-   * @dataProvider providerTestGetView
+   * @dataProvider providerTestShowView
    */
-  function testGetView($function_extension, $file_exists) {
+  function testShowView($class, $is_success) {
     global $wp_test_expectations;
     $wp_test_expectations['plugin_data'][realpath(dirname(__FILE__) . '/../classes/PluginWonderful.php')] = array(
       'Title' => '**title**',
@@ -200,17 +201,11 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
       'Author' => '**author**'
     );
   
-    $pw = $this->getMock('PluginWonderful', array('_create_target', '_include', '_file_exists'));
-
-    $pw->expects($this->once())->method("_file_exists")->will($this->returnValue($file_exists));
-
     ob_start();
-    $pw->get_view("plugin_wonderful_" . $function_extension);
+    $this->pw->show_view($class);
     $source = ob_get_clean();
-    
-    $this->assertEquals($file_exists, strpos($source, $function_extension) === false);
-    
-    if ($file_exists) {
+
+    if ($is_success) {
       foreach (array("title", "version", "author") as $name) {
         $this->assertTrue(strpos($source, "**${name}**") !== false);
       }
@@ -233,7 +228,7 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
      _set_valid_nonce('plugin-wonderful', $has_verify_nonce ? '12345' : '54321');
           
      $pw = $this->getMock('PluginWonderful', $method_exists ? array('handle_action_test') : array('handle_action_invalid'));
-     $_POST['action'] = 'test';
+     $_POST['_pw_action'] = 'test';
      
      if ($method_exists) {
        $pw->expects($this->once())->method('handle_action_test');
@@ -458,6 +453,112 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
     ob_start();
     $this->pw->_render_adbox($requested_adboxid, $center_widget);
     $this->assertEquals($expected_result, ob_get_clean());
+  }
+  
+  function testRenderAdboxAdmin() {
+    $this->pw->publisher_info->adboxes = array(
+      (object)array('adboxid' => '123'),
+      (object)array('adboxid' => '234'),
+      (object)array('adboxid' => '345'),
+    );
+    
+    ob_start();
+    $this->pw->_render_adbox_admin(array('adboxid' => '123', 'center' => 1), array('adboxid' => 'adname', 'center' => 'centername'));
+    $source = ob_get_clean();
+    
+    $this->assertTrue(($xml = _to_xml($source)) !== false);
+    
+    foreach (array(
+      '//input[@type="radio" and @name="adname" and @value="123" and @checked="checked"]' => true,
+      '//input[@type="radio" and @name="adname" and @value="234" and not(@checked="checked")]' => true,
+      '//input[@type="radio" and @name="adname" and @value="345" and not(@checked="checked")]' => true,
+      '//input[@type="checkbox" and @name="centername" and @value="1" and @checked="checked"]' => true
+    ) as $xpath => $value) {
+      $this->assertTrue(_xpath_test($xml, $xpath, $value), $xpath);
+    }  
+  }
+  
+  function providerTestRenderPre28Widget() {
+    return array(
+      array(false, false),
+      array(array('blah' => 'yadda'), false),
+      array(array('adboxid' => '1', 'center' => 1), false),
+      array(array('adboxid' => '123', 'center' => 1), true)
+    );
+  }
+  
+  /**
+   * @dataProvider providerTestRenderPre28Widget
+   */
+  function testRenderPre28Widget($option_value, $success) {
+    update_option('plugin-wonderful-pre28-widget-info', $option_value);
+  
+    $this->pw->publisher_info->adboxes = array(
+      (object)array('adboxid' => '123'),
+    );
+  
+    ob_start();
+    $this->pw->render_pre28_widget();
+    $source = ob_get_clean();
+    
+    $this->assertEquals($success, !empty($source));
+  }
+  
+  function testRenderPre28WidgetControl() {
+    update_option('plugin-wonderful-pre28-widget-info', array('adboxid' => 123, 'center' => 1));
+    
+    $this->pw->publisher_info->adboxes = array(
+      (object)array('adboxid' => '123'),
+    );
+    
+    ob_start();
+    $this->pw->render_pre28_widget_control();
+    $source = ob_get_clean();
+
+    $this->assertTrue(($xml = _to_xml($source)) !== false);
+   
+    foreach (array(
+      '//input[@name="_pw_nonce"]' => true,
+      '//input[@name="pw[adboxid]"]' => true,
+      '//input[@name="pw[center]"]' => true,
+    ) as $xpath => $value) {
+      $this->assertTrue(_xpath_test($xml, $xpath, $value), $xpath);
+    }
+  }
+  
+  function providerTestNormalizePre28Option() {
+    return array(
+      array(
+        false,
+        array('adboxid' => false, 'center' => 0)
+      ),
+      array(
+        array(),
+        array('adboxid' => false, 'center' => 0)
+      ),
+      array(
+        array('adboxid' => 'meow'),
+        array('adboxid' => false, 'center' => 0)
+      ),
+      array(
+        array('adboxid' => '123'),
+        array('adboxid' => '123', 'center' => 0)
+      ),
+    );
+  }
+  
+  /**
+   * @dataProvider providerTestNormalizePre28Option
+   */
+  function testNormalizePre28Option($option_value, $expected_result) {
+    update_option('plugin-wonderful-pre28-widget-info', $option_value);
+    
+    $this->assertEquals($expected_result, $this->pw->_normalize_pre28_option());
+    $this->assertEquals($expected_result, get_option('plugin-wonderful-pre28-widget-info'));
+  }
+  
+  function testHandlePre28WidgetUpdate() {
+    $this->markTestIncomplete();
   }
 }
 

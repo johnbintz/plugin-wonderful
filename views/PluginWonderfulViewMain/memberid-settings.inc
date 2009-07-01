@@ -1,7 +1,7 @@
 <?php if (is_admin()) { ?>
   <form id="pw-handler" action="" method="post">
     <input type="hidden" name="_pw_nonce" value="<?php echo $this->_pw_nonce ?>" />
-    <input type="hidden" name="action" value="change-memberid" />
+    <input type="hidden" name="_pw_action" value="change-memberid" />
     <table class="form-table">
       <tr>
         <th scope="row"><?php _e('Your member number', 'plugin-wonderful') ?></th>
