@@ -52,7 +52,7 @@ class PWAdboxesClientTest extends PHPUnit_Framework_TestCase {
 
     $wpdb->expects($this->exactly(13))->method('escape');
     $wpdb->expects($this->exactly(2))->method('query')->will($this->returnCallback(array($this, 'postAdsCallback')));
-    $wpdb->expects($this->exactly(1))->method('get_results')->will($this->returnValue(array()))->with("SELECT adboxid, template_tag_id, in_rss_feed, center_widget FROM {$this->database_client->table_name}");
+    $wpdb->expects($this->exactly(1))->method('get_results')->will($this->returnValue(array()))->with("SELECT adboxid, template_tag_id, in_rss_feed FROM {$this->database_client->table_name}");
 
     $this->database_client->post_ads($ads, PW_ADBOXES_PROJECT_WONDERFUL);
   }

@@ -85,7 +85,7 @@ class PWAdboxesClient {
       if ($ads->is_valid) {
         $mappings = array();
 
-        if (is_array($results = $wpdb->get_results("SELECT adboxid, template_tag_id, in_rss_feed, center_widget FROM {$this->table_name}"))) {
+        if (is_array($results = $wpdb->get_results("SELECT adboxid, template_tag_id, in_rss_feed FROM {$this->table_name}"))) {
           foreach ($results as $result) {
             $mappings[$result->adboxid] = $result;
           }
@@ -139,7 +139,7 @@ class PWAdboxesClient {
       $ads->memberid = $member_id;
       $ads->adboxes = $results;
       $ads->is_valid = true;
-
+      
       return $ads;
     }
 
