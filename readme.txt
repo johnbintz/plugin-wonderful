@@ -16,11 +16,13 @@ Plugin Wonderful downloads your adbox information from Project Wonderful and cre
 
 Copy the plugin-wonderful folder to your wp-content/plugins folder and activate it from Plugins -> Installed. Activating the plugin creates a new database table, `{prefix}_pw_adboxes`, that you can safely remove if you are no longer using the plugin.
 
+Note that if you're upgrading from a pre-0.5 version, you'll have to deactivate and reactivate the plugin. If you're using the Widgets feature of the plugin, you'll have to re-add your widgets to your sidebars again.
+
 == Frequently Asked Questions ==
 
 = Why don't my widgets work anymore?! =
 
-The widget API in 2.8 changed to something that is much easier to use when you want multiple widgets on a page. Using multiple widgets was broken in earlier versions of Plugin Wonderful, anyway. If you are using a pre-2.8 WordPress and want widgets in your sidebar, you can still use template tags to put them there.
+The widget API in 2.8 changed to something that is much easier to use when you want multiple widgets on a page. Using multiple widgets was broken in earlier versions of Plugin Wonderful, anyway. If you are using a pre-2.8 WordPress, you'll be able to add a single widget to your sidebar. If you want more, you'll need to use template tags.
 
 = Where do I get my member number? =
 
