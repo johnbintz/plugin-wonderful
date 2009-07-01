@@ -46,8 +46,8 @@ add_filter('the_content', array($plugin_wonderful, 'inject_ads_into_body_copy'))
 if (version_compare($wp_version, "2.8", ">=")) {
   add_action('widgets_init', '__plugin_wonderful_load_widgets');
 } else {
-  register_sidebar_widget(__('Plugin Wonderful', 'plugin-wonderful'), array($this, 'render_pre28_widget'));
-  register_widget_control(__('Plugin Wonderful', 'plugin-wonderful'), array($this, 'render_pre28_widget_control'));
+  register_sidebar_widget(__('Plugin Wonderful', 'plugin-wonderful'), array($plugin_wonderful, 'render_pre28_widget'));
+  register_widget_control(__('Plugin Wonderful', 'plugin-wonderful'), array($plugin_wonderful, 'render_pre28_widget_control'));
 }
 
 register_activation_hook(__FILE__, array($plugin_wonderful, 'handle_activation'));
