@@ -5,7 +5,7 @@ Plugin URI: http://www.coswellproductions.com/wordpress/wordpress-plugins/
 Description: Easily embed a Project Wonderful publisher's advertisements.
 Version: 0.5
 Author: John Bintz
-Author URI: http://www.coswellproductions.org/wordpress/
+Author URI: http://www.coswellproductions.com/wordpress/
 
 Copyright 2009 John Bintz  (email : john@coswellproductions.com)
 

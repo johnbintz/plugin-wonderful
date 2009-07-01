@@ -163,7 +163,7 @@ class PluginWonderful {
 
   function show_view($view) {
     if (is_object($view) && method_exists($view, 'render')) {
-      $info = get_plugin_data(realpath(__FILE__));
+      $info = get_plugin_data(dirname(__FILE__) . '/../plugin-wonderful.php');
 
       echo '<div class="wrap">';
         echo '<div id="icon-edit" class="icon32"><br /></div>';
