@@ -16,7 +16,7 @@ Plugin Wonderful downloads your adbox information from Project Wonderful and cre
 
 Copy the plugin-wonderful folder to your wp-content/plugins folder and activate it from Plugins -> Installed. Activating the plugin creates a new database table, `{prefix}_pw_adboxes`, that you can safely remove if you are no longer using the plugin.
 
-Note that if you're upgrading from a pre-0.5 version, you'll have to deactivate and reactivate the plugin. If you're using the Widgets feature of the plugin, you'll have to rea-dd your widgets to your sidebars again.
+Note that if you're upgrading from a pre-0.5 version, you'll have to deactivate and reactivate the plugin. If you're using the Widgets feature of the plugin, you'll have to re-add your widgets to your sidebars again.
 
 == Frequently Asked Questions ==
 
