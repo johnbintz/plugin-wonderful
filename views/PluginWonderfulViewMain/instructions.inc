@@ -37,7 +37,7 @@
 
     <form id="allow-destroy-handler" action="" method="post">
       <input type="hidden" name="_pw_nonce" value="<?php echo $this->_pw_nonce ?>" />
-      <input type="hidden" name="action" value="rebuild-database" />
+      <input type="hidden" name="_pw_action" value="rebuild-database" />
       <input type="submit" value="<?php _e('Destroy and Rebuild Database', 'plugin-wonderful') ?>" class="button" />
     </form>
   <?php } ?>

@@ -183,7 +183,8 @@ class ViewMainTest extends PHPUnit_Framework_TestCase {
       '//tt[contains(text(), "the_project_wonderful_ad(123)")]' => true,
       '//tt[contains(text(), "PW(123)")]' => true,
       '//tt[contains(text(), "PW\(123\)")]' => true,
-      '//form[@id="allow-destroy-handler"]/input[@name="_pw_nonce" and @value="345"]' => true
+      '//form[@id="allow-destroy-handler"]/input[@name="_pw_nonce" and @value="345"]' => true,
+      '//form[@id="allow-destroy-handler"]/input[@name="_pw_action" and @value="rebuild-database"]' => true
     ) as $xpath => $value) {
       $this->assertTrue(_xpath_test($xml, $xpath, $value), $xpath);
     }
