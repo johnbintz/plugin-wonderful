@@ -186,7 +186,7 @@ class PluginWonderful {
         echo '</div>';
       echo '</div>';
     } else {
-      var_dump($view);
+      var_dump($view); // ignore var_dump
     }
   }
 
@@ -365,6 +365,7 @@ class PluginWonderful {
       echo '<p>';
         echo 'Select an adbox:<br />';
         foreach ($this->publisher_info->adboxes as $box) {
+          if (empty($instance['adboxid'])) { $instance['adboxid'] = $box->adboxid; }
           echo '<label>';
             echo '<input type="radio" name="'
                  . $field_names['adboxid']
