@@ -365,6 +365,7 @@ class PluginWonderful {
       echo '<p>';
         echo 'Select an adbox:<br />';
         foreach ($this->publisher_info->adboxes as $box) {
+          if (empty($instance['adboxid'])) { $instance['adboxid'] = $box->adboxid; }
           echo '<label>';
             echo '<input type="radio" name="'
                  . $field_names['adboxid']

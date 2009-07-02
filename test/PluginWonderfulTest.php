@@ -467,21 +467,23 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
       (object)array('adboxid' => '234'),
       (object)array('adboxid' => '345'),
     );
-    
-    ob_start();
-    $this->pw->_render_adbox_admin(array('adboxid' => '123', 'center' => 1), array('adboxid' => 'adname', 'center' => 'centername'));
-    $source = ob_get_clean();
-    
-    $this->assertTrue(($xml = _to_xml($source)) !== false);
-    
-    foreach (array(
-      '//input[@type="radio" and @name="adname" and @value="123" and @checked="checked"]' => true,
-      '//input[@type="radio" and @name="adname" and @value="234" and not(@checked="checked")]' => true,
-      '//input[@type="radio" and @name="adname" and @value="345" and not(@checked="checked")]' => true,
-      '//input[@type="checkbox" and @name="centername" and @value="1" and @checked="checked"]' => true
-    ) as $xpath => $value) {
-      $this->assertTrue(_xpath_test($xml, $xpath, $value), $xpath);
-    }  
+
+    foreach (array('', '123') as $sample_adbox_id) {
+      ob_start();
+      $this->pw->_render_adbox_admin(array('adboxid' => $sample_adbox_id, 'center' => 1), array('adboxid' => 'adname', 'center' => 'centername'));
+      $source = ob_get_clean();
+      
+      $this->assertTrue(($xml = _to_xml($source)) !== false);
+      
+      foreach (array(
+        '//input[@type="radio" and @name="adname" and @value="123" and @checked="checked"]' => true,
+        '//input[@type="radio" and @name="adname" and @value="234" and not(@checked="checked")]' => true,
+        '//input[@type="radio" and @name="adname" and @value="345" and not(@checked="checked")]' => true,
+        '//input[@type="checkbox" and @name="centername" and @value="1" and @checked="checked"]' => true
+      ) as $xpath => $value) {
+        $this->assertTrue(_xpath_test($xml, $xpath, $value), $xpath);
+      }
+    }
   }
   
   function providerTestRenderPre28Widget() {
