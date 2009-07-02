@@ -163,7 +163,7 @@ class PluginWonderful {
 
   function show_view($view) {
     if (is_object($view) && method_exists($view, 'render')) {
-      $info = get_plugin_data(dirname(__FILE__) . '/../plugin-wonderful.php');
+      $info = get_plugin_data(realpath(dirname(__FILE__) . '/../plugin-wonderful.php'));
 
       echo '<div class="wrap">';
         echo '<div id="icon-edit" class="icon32"><br /></div>';
@@ -373,7 +373,9 @@ class PluginWonderful {
                  . '" '
                  . (($instance['adboxid'] == $box->adboxid) ? 'checked="checked"' : "")
                  . ' />';
-            echo $box->adtype . " " . $box->dimensions . " (" . $box->adboxid . ")";
+            echo '<acronym title="' . $box->sitename . '">';
+              echo $box->adtype . " " . $box->dimensions . " (" . $box->adboxid . ")";
+            echo '</acronym>';
           echo "</label>";
           echo "<br />";
         }

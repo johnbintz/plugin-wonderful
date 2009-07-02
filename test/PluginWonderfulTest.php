@@ -195,7 +195,7 @@ class PluginWonderfulTest extends PHPUnit_Framework_TestCase {
    */
   function testShowView($class, $is_success) {
     global $wp_test_expectations;
-    $wp_test_expectations['plugin_data'][realpath(dirname(__FILE__) . '/../classes/PluginWonderful.php')] = array(
+    $wp_test_expectations['plugin_data'][realpath(dirname(__FILE__) . '/../plugin-wonderful.php')] = array(
       'Title' => '**title**',
       'Version' => '**version**',
       'Author' => '**author**'
