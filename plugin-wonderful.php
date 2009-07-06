@@ -25,8 +25,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 */
 
-foreach (glob(dirname(__FILE__) . '/classes/*.php') as $file) { require_once($file); }
-foreach (glob(dirname(__FILE__) . '/views/*.php') as $file) { require_once($file); }
+foreach (glob(dirname(__FILE__) . '/classes/*.php') as $__file) { require_once($__file); }
+foreach (glob(dirname(__FILE__) . '/views/*.php') as $__file) { require_once($__file); }
 
 define('PLUGIN_WONDERFUL_XML_URL', 'http://www.projectwonderful.com/xmlpublisherdata.php?publisher=%d');
 define('PLUGIN_WONDERFUL_UPDATE_TIME', 60 * 60 * 12); // every 12 hours
