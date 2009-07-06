@@ -20,7 +20,30 @@ class PluginWonderful {
   function _retrieve_url($url) {
     return @file_get_contents($url);
   }
+
+  function _setup_actions() {
+    global $wp_version;
+      
+    add_action('admin_menu', array($this, 'set_up_menu'));
+    add_action('init', array($this, 'init'));
+    add_filter('the_excerpt_rss', array($this, 'insert_rss_feed_ads'));
+    add_filter('the_content', array($this, 'inject_ads_into_body_copy'));
+    add_action('widgets_init', array($this, '_load_widgets'));
+
+    register_activation_hook(__FILE__, array($this, 'handle_activation'));
+  }
   
+  function _load_widgets() {
+    if (version_compare($wp_version, "2.8", ">=")) {
+      if (class_exists('WP_Widget')) {
+        register_widget('PluginWonderfulWidget');
+      }
+    } else {
+      register_sidebar_widget(__('Plugin Wonderful', 'plugin-wonderful'), array($this, 'render_pre28_widget'));
+      register_widget_control(__('Plugin Wonderful', 'plugin-wonderful'), array($this, 'render_pre28_widget_control'));
+    }  
+  }
+
   /**
    * Initialize the object if it isn't already.
    */
@@ -33,32 +56,8 @@ class PluginWonderful {
       
       $this->_get_publisher_info();
       $this->_update_database_version();
-      $this->_update_plugin_wonderful();
       
       if (!empty($_POST)) { $this->handle_action(); }
-      $this->_update_plugin_wonderful();
-    }
-  }
-  
-  /**
-   * Fix PHP 4's full-of-fail object handling.
-   */
-  function _update_plugin_wonderful() {
-    if (version_compare("5", phpversion(), ">")) {
-      global $plugin_wonderful;
-      $plugin_wonderful = $this;
-    }
-  }
-  
-  /**
-   * Fix PHP 4's full-of-fail object handling.
-   */
-  function _update_this() {
-    if (version_compare("5", phpversion(), ">")) {
-      global $plugin_wonderful;
-      foreach ((array)$plugin_wonderful as $field => $value) {
-        $this->{$field} = $plugin_wonderful->{$field};
-      }
     }
   }
 
@@ -108,7 +107,6 @@ class PluginWonderful {
   }
 
   function insert_rss_feed_ads($content) {
-    $this->_update_this();
     if (is_feed()) {
       if ($this->publisher_info !== false) {
         foreach ($this->publisher_info->adboxes as $adbox) {
@@ -130,7 +128,6 @@ class PluginWonderful {
    * @return string The modified body.
    */
   function inject_ads_into_body_copy($body) {
-    $this->_update_this();
     if ($this->publisher_info !== false) {
       if (get_option("plugin-wonderful-enable-body-copy-embedding") == 1) {
         return $this->publisher_info->inject_ads_into_body_copy($body, (get_option("plugin-wonderful-use-standardcode") == 1));
@@ -149,7 +146,6 @@ class PluginWonderful {
   }
 
   function plugin_wonderful_main() {
-    $this->_update_this();
     $this->show_view(new PluginWonderfulViewMain());
   }
 
@@ -392,7 +388,6 @@ class PluginWonderful {
   }
   
   function render_pre28_widget() {
-    $this->_update_this();
     $data = get_option('plugin-wonderful-pre28-widget-info');
     if (is_array($data)) {
       if (count(array_intersect(array_keys($data), array("adboxid", "center"))) == 2) {
@@ -431,7 +426,6 @@ class PluginWonderful {
   }
   
   function render_pre28_widget_control() {
-    $this->_update_this();
     $instance = $this->_normalize_pre28_option();
     
     echo '<input type="hidden" name="_pw_nonce" value="' . wp_create_nonce('plugin-wonderful') . '" />';

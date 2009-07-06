@@ -32,26 +32,6 @@ define('PLUGIN_WONDERFUL_XML_URL', 'http://www.projectwonderful.com/xmlpublisher
 define('PLUGIN_WONDERFUL_UPDATE_TIME', 60 * 60 * 12); // every 12 hours
 
 $plugin_wonderful = new PluginWonderful();
-
-function __plugin_wonderful_load_widgets() {
-  global $wp_version, $plugin_wonderful;
-  
-  if (version_compare($wp_version, "2.8", ">=")) {
-    if (class_exists('WP_Widget')) {
-      register_widget('PluginWonderfulWidget');
-    }
-  } else {
-    register_sidebar_widget(__('Plugin Wonderful', 'plugin-wonderful'), array($plugin_wonderful, 'render_pre28_widget'));
-    register_widget_control(__('Plugin Wonderful', 'plugin-wonderful'), array($plugin_wonderful, 'render_pre28_widget_control'));
-  }
-}
-
-add_action('admin_menu', array($plugin_wonderful, 'set_up_menu'));
-add_action('init', array($plugin_wonderful, 'init'));
-add_filter('the_excerpt_rss', array($plugin_wonderful, 'insert_rss_feed_ads'));
-add_filter('the_content', array($plugin_wonderful, 'inject_ads_into_body_copy'));
-add_action('widgets_init', '__plugin_wonderful_load_widgets');
-
-register_activation_hook(__FILE__, array($plugin_wonderful, 'handle_activation'));
+$plugin_wonderful->_setup_actions();
 
 ?>
