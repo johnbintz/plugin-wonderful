@@ -22,8 +22,6 @@ class PluginWonderful {
   }
 
   function _setup_actions() {
-    global $wp_version;
-      
     add_action('admin_menu', array($this, 'set_up_menu'));
     add_action('init', array($this, 'init'));
     add_filter('the_excerpt_rss', array($this, 'insert_rss_feed_ads'));
@@ -34,6 +32,8 @@ class PluginWonderful {
   }
   
   function _load_widgets() {
+    global $wp_version;
+    
     if (version_compare($wp_version, "2.8", ">=")) {
       if (class_exists('WP_Widget')) {
         register_widget('PluginWonderfulWidget');
@@ -48,8 +48,6 @@ class PluginWonderful {
    * Initialize the object if it isn't already.
    */
   function init() {
-    global $wp_version;
-    
     if (empty($this->adboxes_client)) {
       $this->messages = array();
       $this->adboxes_client = new PWAdboxesClient();
