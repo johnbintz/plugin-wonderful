@@ -22,13 +22,13 @@ class PluginWonderful {
   }
 
   function _setup_actions() {
-    add_action('admin_menu', array($this, 'set_up_menu'));
-    add_action('init', array($this, 'init'));
-    add_filter('the_excerpt_rss', array($this, 'insert_rss_feed_ads'));
-    add_filter('the_content', array($this, 'inject_ads_into_body_copy'));
-    add_action('widgets_init', array($this, '_load_widgets'));
+    add_action('admin_menu', array(&$this, 'set_up_menu'));
+    add_action('init', array(&$this, 'init'));
+    add_filter('the_excerpt_rss', array(&$this, 'insert_rss_feed_ads'));
+    add_filter('the_content', array(&$this, 'inject_ads_into_body_copy'));
+    add_action('widgets_init', array(&$this, '_load_widgets'));
 
-    register_activation_hook(__FILE__, array($this, 'handle_activation'));
+    register_activation_hook(__FILE__, array(&$this, 'handle_activation'));
   }
   
   function _load_widgets() {
@@ -39,8 +39,8 @@ class PluginWonderful {
         register_widget('PluginWonderfulWidget');
       }
     } else {
-      register_sidebar_widget(__('Plugin Wonderful', 'plugin-wonderful'), array($this, 'render_pre28_widget'));
-      register_widget_control(__('Plugin Wonderful', 'plugin-wonderful'), array($this, 'render_pre28_widget_control'));
+      register_sidebar_widget(__('Plugin Wonderful', 'plugin-wonderful'), array(&$this, 'render_pre28_widget'));
+      register_widget_control(__('Plugin Wonderful', 'plugin-wonderful'), array(&$this, 'render_pre28_widget_control'));
     }  
   }
 
