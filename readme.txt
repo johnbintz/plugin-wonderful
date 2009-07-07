@@ -3,7 +3,7 @@ Contributors: johncoswell
 Tags: ads, sidebar, widget
 Requires at least: 2.7
 Tested up to: 2.8
-Stable tag: 0.5
+Stable tag: 0.5.1
 Donate link: http://www.coswellproductions.com/wordpress/wordpress-plugins/
 
 Plugin Wonderful lets Project Wonderful publishers quickly and easily add their adboxes to thier WordPress site.
