@@ -18,7 +18,15 @@ class PluginWonderful {
    * Wrapper around file_get_contents for testing purposes.
    */
   function _retrieve_url($url) {
-    return @file_get_contents($url);
+    if (extension_loaded('curl')) {
+      $ch = curl_init($url);
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+      $result = curl_exec($ch);
+      curl_close($ch); 
+      return $result;
+    } else {
+      return @file_get_contents($url);
+    }
   }
 
   function _setup_actions() {

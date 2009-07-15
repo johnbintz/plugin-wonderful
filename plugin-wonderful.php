@@ -3,7 +3,7 @@
 Plugin Name: Plugin Wonderful
 Plugin URI: http://www.coswellproductions.com/wordpress/wordpress-plugins/
 Description: Easily embed a Project Wonderful publisher's advertisements.
-Version: 0.5.1
+Version: 0.5.2
 Author: John Bintz
 Author URI: http://www.coswellproductions.com/wordpress/
 
