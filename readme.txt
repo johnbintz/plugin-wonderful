@@ -2,7 +2,7 @@
 Contributors: johncoswell
 Tags: ads, sidebar, widget
 Requires at least: 2.7
-Tested up to: 2.8
+Tested up to: 2.8.1
 Stable tag: 0.5.2
 Donate link: http://www.coswellproductions.com/wordpress/wordpress-plugins/
 
