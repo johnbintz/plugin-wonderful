@@ -4,11 +4,12 @@ Tags: ads, sidebar, widget
 Requires at least: 2.7
 Tested up to: 2.8.1
 Stable tag: 0.5.2
-Donate link: http://www.coswellproductions.com/wordpress/wordpress-plugins/
 
 Plugin Wonderful lets Project Wonderful publishers quickly and easily add their adboxes to thier WordPress site.
 
 == Description ==
+
+*Plugin Wonderful is no longer actively maintained. If you wish to take over the project, contact John Bintz (john@coswellproductions.com).*
 
 Plugin Wonderful downloads your adbox information from Project Wonderful and creates a series of widgets that can easily be added to your sidebars. It also adds a new template tag, `the_project_wonderful_ad()`, that lets you embed Project Wonderful ads directly into your site. Adbox code is downloaded straight from Project Wonderful, so your adboxes are always displayed correctly. You can also easily activate new ads without having to modify your theme.
 
